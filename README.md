@@ -2,15 +2,7 @@
 
 Zarrachalardan yasalgan animatsion "xat" sayti: konvert → aylanma galaktika → ism → atirgul.
 
-## Ismni o'zgartirish
-Linkga `?name=` qo'shing:
-
-```
-https://<sayt>.vercel.app/?name=Gulirano
-```
-
-Yoki saytdagi chap yuqoridagi **✎ Ism** tugmasi orqali link yarating.
-Standart ism `index.html` ichidagi `DEFAULT_NAME` da.
+Ism: **Charos**.
 
 ## Tugmalar
 - **ASCII** — zarrachalarni belgilar ko'rinishiga o'tkazadi

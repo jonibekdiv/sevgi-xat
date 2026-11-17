@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Senga xat keldi 💌</title>
+<title>Charos, senga xat keldi 💌</title>
 <meta name="description" content="Senga maxsus xat keldi — konvertni och.">
 <meta property="og:title" content="Senga xat keldi 💌">
 <meta property="og:description" content="Konvertni och — ichida sen uchun sovg'a bor.">
@@ -45,61 +45,27 @@
   #replay{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;opacity:0;pointer-events:none;transition:opacity 1s}
   #replay.show{opacity:1;pointer-events:auto}
 
-  /* creator modal */
-  #maker{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;background:rgba(5,3,8,.72);backdrop-filter:blur(6px);padding:20px}
-  #maker.show{display:flex}
-  .card{width:min(420px,100%);background:#120c14;border:1px solid rgba(246,200,170,.3);border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
-  .card h3{font:italic 400 30px/1.1 'Great Vibes',cursive;color:#ffb3cf;margin-bottom:6px}
-  .card p{font-size:11px;color:#c9aeb0;letter-spacing:.04em;line-height:1.6;margin-bottom:16px}
-  .card input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(246,200,170,.35);background:#0b070d;color:#fff;font:14px 'JetBrains Mono',monospace;outline:none}
-  .card input:focus{border-color:#ff9cc2}
-  .card .out{margin-top:12px;font-size:11px;word-break:break-all;color:#ffd0b8;min-height:16px}
-  .card .row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-  .card .row .pill{flex:1;text-align:center;padding:11px}
 </style>
 </head>
 <body>
 <canvas id="bg"></canvas>
 <canvas id="fx"></canvas>
 
-<div class="top left"><button class="pill" id="makeBtn" title="O'z linkingni yarat">✎ Ism</button></div>
 <div class="top">
   <button class="pill" id="asciiBtn">ASCII</button>
   <button class="pill" id="soundBtn">♥ Ovoz</button>
 </div>
 
 <div id="intro">
-  <div class="sub" id="subText">Senga xat keldi</div>
+  <div class="sub" id="subText">Charos, senga xat keldi</div>
   <button id="open">Konvertni ochish</button>
 </div>
 
 <div id="final"><div class="for">Sen uchun</div></div>
 <button class="pill" id="replay">↺ Qayta</button>
 
-<div id="maker">
-  <div class="card">
-    <h3>O'z xatingni yarat</h3>
-    <p>Ismni yoz — shu ism bilan maxsus link tayyor bo'ladi. Linkni yoki QR kodni sevgan insoningga yubor.</p>
-    <input id="nameInput" maxlength="24" placeholder="Masalan: Gulirano" autocomplete="off">
-    <div class="out" id="linkOut"></div>
-    <div class="row">
-      <button class="pill" id="copyBtn">Nusxa olish</button>
-      <button class="pill" id="goBtn">Ko'rish</button>
-      <button class="pill" id="closeBtn">Yopish</button>
-    </div>
-  </div>
-</div>
-
 <script>
-/* ============ SOZLAMALAR ============
-   Ismni o'zgartirish: linkga ?name=Ism qo'shing
-   masalan: https://sayt.vercel.app/?name=Gulirano
-   Link bo'lmasa DEFAULT_NAME chiqadi.                */
-const DEFAULT_NAME = "Azizam";
-/* =================================== */
-
-const params = new URLSearchParams(location.search);
-const NAME = (params.get('name') || params.get('n') || DEFAULT_NAME).trim().slice(0, 24) || DEFAULT_NAME;
+const NAME = "Charos";
 document.getElementById('subText').textContent = `${NAME}, senga xat keldi`;
 document.title = `${NAME}, senga xat keldi 💌`;
 
@@ -152,7 +118,7 @@ function fit(pts, n){
 }
 
 /* ---------- target shapes ---------- */
-let N, envT, discR, nameT, roseT;
+let N, envT, discR, nameT, roseT, textBox, roseY;
 function layout(){
   const ew = Math.min(W*.78, 520*S), eh = ew*.62;
   const cx = W/2, cy = H*.42;
@@ -169,28 +135,37 @@ function layout(){
     c.beginPath(); c.moveTo(hx,hy+hs*1.1);
     c.bezierCurveTo(hx-hs*2.2,hy-hs*.2,hx-hs*1.1,hy-hs*1.9,hx,hy-hs*.7);
     c.bezierCurveTo(hx+hs*1.1,hy-hs*1.9,hx+hs*2.2,hy-hs*.2,hx,hy+hs*1.1); c.fill();
-    // FOR YOU
-    c.fillStyle = '#ffffff';
+    // FOR YOU — clear the lines behind the text first
     c.font = `${Math.round(ew*.075)}px 'Press Start 2P', monospace`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('FOR YOU', cx, cy+eh*.3);
+    const tw = c.measureText('FOR YOU').width, th = ew*.075, ty = cy+eh*.3;
+    c.globalCompositeOperation = 'destination-out';
+    c.fillRect(cx-tw/2-ew*.03, ty-th*.9, tw+ew*.06, th*1.8);
+    c.globalCompositeOperation = 'source-over';
+    textBox = {x0:cx-tw/2-ew*.03, x1:cx+tw/2+ew*.03, y0:ty-th*.9, y1:ty+th*.9};
+    c.fillStyle = '#ffffff';
+    c.fillText('FOR YOU', cx, ty);
   }, Math.max(2, Math.round(2.6*S)), (x,y,r,g,b) => r>240&&g>240 ? [255,250,245] : (g<150 ? [255,110,160] : [255,214,168]));
   // faint interior "ascii dust"
   const dust = [];
-  for (let i=0;i<env.length*.35;i++) dust.push({x:cx-ew/2+Math.random()*ew, y:cy-eh/2+Math.random()*eh, c:[255,200,160], faint:true});
-  N = Math.min(5200, Math.max(2600, Math.round(env.length*1.25)));
+  while (dust.length < env.length*.35){
+    const x = cx-ew/2+Math.random()*ew, y = cy-eh/2+Math.random()*eh;
+    if (x>textBox.x0 && x<textBox.x1 && y>textBox.y0 && y<textBox.y1) continue;
+    dust.push({x, y, c:[255,200,160], faint:true});
+  }
+  N = Math.min(6500, Math.max(4200, Math.round(env.length*1.4)));
   envT = fit(env.concat(dust), N);
 
   discR = Math.min(W*.42, 380*S);
 
   // name (big)
-  const fs = Math.min(W/(NAME.length*.42+1), 190*S);
+  const fs = Math.min(W/(NAME.length*.40+1), 200*S);
   nameT = fit(sample(c => {
     c.fillStyle='#fff'; c.font = `${Math.round(fs)}px 'Great Vibes', cursive`; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(NAME, cx, H*.45);
-  }, Math.max(2, Math.round(2.2*S)), () => [255,150,190]), N);
+  }, Math.max(2, Math.round(1.7*S)), () => [255, 140+Math.random()*60|0, 185+Math.random()*40|0]), N);
 
   // rose + small name
-  const R = Math.min(W*.16, 120*S), rx = cx, ry = H*.30;
+  const R = Math.min(W*.24, 130*S, H*.14), rx = cx, ry = H*.32; roseY = ry;
   const rose = [];
   const nb = Math.round(N*.58);
   for (let i=0;i<nb;i++){
@@ -204,7 +179,7 @@ function layout(){
     rose.push({x:rx+Math.cos(th)*r, y, c:col, bloom:true});
   }
   // stem
-  const stemTop = ry + R*.72, stemBot = H*.62;
+  const stemTop = ry + R*.72, stemBot = ry + R*2.5;
   const ns = Math.round(N*.07);
   for (let i=0;i<ns;i++){
     const t = Math.random(), y = stemTop + (stemBot-stemTop)*t;
@@ -219,9 +194,10 @@ function layout(){
   }
   // small name
   const fs2 = Math.min(W/(NAME.length*.42+1), 92*S);
+  const nameY = stemBot + 34*S + fs2*.75;
   const small = sample(c => {
     c.fillStyle='#fff'; c.font = `${Math.round(fs2)}px 'Great Vibes', cursive`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(NAME, cx, H*.775);
+    c.fillText(NAME, cx, nameY);
   }, Math.max(2, Math.round(1.6*S)), () => [255,205,225]);
   const rest = N - rose.length;
   roseT = rose.concat(fit(small, Math.max(0, rest))).slice(0, N);
@@ -229,7 +205,7 @@ function layout(){
 
   // place html
   document.getElementById('intro').style.top = (cy + eh/2 + 26*S) + 'px';
-  document.getElementById('final').style.top = (H*.775 - fs2*.95 - 18*S) + 'px';
+  document.getElementById('final').style.top = (stemBot + 14*S) + 'px';
 }
 
 /* ---------- particles ---------- */
@@ -281,7 +257,7 @@ function update(now){
   for (const p of P){
     let tx = p.tx, ty = p.ty;
     if (phase === 'envelope'){ tx += Math.sin(now*.0015 + p.tw)*.8; ty += Math.cos(now*.0013 + p.tw)*.8; }
-    if (phase === 'rose' && p.bloom){ const br = 1 + Math.sin(now*.0012)*.025; tx = cx + (p.tx-cx)*br; ty = H*.30 + (p.ty-H*.30)*br; }
+    if (phase === 'rose' && p.bloom){ const br = 1 + Math.sin(now*.0012)*.025; tx = cx + (p.tx-cx)*br; ty = roseY + (p.ty-roseY)*br; }
     p.vx = (p.vx + (tx - p.x)*k)*damp;
     p.vy = (p.vy + (ty - p.y)*k)*damp;
     p.x += p.vx; p.y += p.vy;
@@ -374,22 +350,6 @@ document.getElementById('replay').addEventListener('click', () => {
   document.getElementById('intro').classList.remove('hide');
   for (const p of P){ const a=Math.random()*6.28; p.vx+=Math.cos(a)*8; p.vy+=Math.sin(a)*8; }
   retarget(envT); setPhase('envelope', performance.now());
-});
-
-const maker = document.getElementById('maker'), nameInput = document.getElementById('nameInput'), linkOut = document.getElementById('linkOut');
-function linkFor(n){ const u = new URL(location.origin + location.pathname); if (n) u.searchParams.set('name', n); return u.toString(); }
-function refreshLink(){ const n = nameInput.value.trim(); linkOut.textContent = n ? linkFor(n) : ''; }
-document.getElementById('makeBtn').addEventListener('click', () => { maker.classList.add('show'); nameInput.value = NAME === DEFAULT_NAME ? '' : NAME; refreshLink(); setTimeout(()=>nameInput.focus(), 50); });
-document.getElementById('closeBtn').addEventListener('click', () => maker.classList.remove('show'));
-maker.addEventListener('click', e => { if (e.target === maker) maker.classList.remove('show'); });
-nameInput.addEventListener('input', refreshLink);
-nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('goBtn').click(); });
-document.getElementById('goBtn').addEventListener('click', () => { const n = nameInput.value.trim(); if (n) location.href = linkFor(n); });
-document.getElementById('copyBtn').addEventListener('click', async e => {
-  const n = nameInput.value.trim(); if (!n) return nameInput.focus();
-  try { await navigator.clipboard.writeText(linkFor(n)); e.currentTarget.textContent = 'Nusxalandi ✓'; }
-  catch { linkOut.style.userSelect='all'; }
-  setTimeout(() => e.currentTarget.textContent = 'Nusxa olish', 1600);
 });
 
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); });
