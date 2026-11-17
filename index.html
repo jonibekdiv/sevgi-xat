@@ -42,7 +42,7 @@
   #final.show{opacity:1}
   #final .for{font:italic 400 clamp(18px,2.6vw,28px)/1 'Cormorant Garamond',serif;letter-spacing:.06em;color:#f7e6dc;text-shadow:0 0 14px rgba(255,160,190,.5)}
 
-  #replay{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;opacity:0;pointer-events:none;transition:opacity 1s}
+  #replay{position:fixed;top:16px;left:16px;z-index:5;opacity:0;pointer-events:none;transition:opacity 1s}
   #replay.show{opacity:1;pointer-events:auto}
 
 
@@ -54,7 +54,19 @@
   .qrcard .t{font:400 34px/1 'Great Vibes',cursive;color:#ffb3d4;margin-bottom:14px}
   .qrcard .u{font-size:11px;letter-spacing:.14em;color:#f3d7c4;margin-top:12px}
   .qrcard .pill{margin-top:14px}
-  #intro,#final{text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  #intro,#final,#msgs{text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  #msgs{position:fixed;left:0;right:0;z-index:4;text-align:center;pointer-events:none;padding:0 18px}
+  #msg{font:italic 400 clamp(19px,2.7vw,30px)/1.3 'Cormorant Garamond',serif;color:#ffe9f2;letter-spacing:.02em;
+    opacity:0;transform:translateY(12px);filter:blur(6px);transition:opacity .9s ease,transform .9s ease,filter .9s ease;
+    text-shadow:0 0 18px rgba(255,120,180,.55),0 2px 10px rgba(0,0,0,.7)}
+  #msg.show{opacity:1;transform:none;filter:none}
+  #sign{margin-top:10px;font:400 clamp(30px,4vw,46px)/1 'Great Vibes',cursive;color:#ffc4dc;opacity:0;transform:scale(.9);
+    transition:opacity 1.4s ease,transform 1.4s ease;text-shadow:0 0 20px rgba(255,110,170,.7)}
+  #sign.show{opacity:1;transform:none}
+  #hint{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:4;font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+    color:rgba(255,220,235,.6);opacity:0;transition:opacity 1.2s;pointer-events:none;white-space:nowrap}
+  #hint.show{opacity:1}
+  @media (max-width:520px){#hint{top:58px}}
 </style>
 </head>
 <body>
@@ -73,6 +85,8 @@
 </div>
 
 <div id="final"><div class="for">Sen uchun</div></div>
+<div id="msgs"><div id="msg"></div><div id="sign">— Jasur</div></div>
+<div id="hint">✦ kursorni yurgiz — atirgul aylanadi · ekranni bos ✦</div>
 <button class="pill" id="replay">↺ Qayta</button>
 
 <div id="qrModal">
@@ -236,8 +250,8 @@ function layout(){
   }, Math.max(2, Math.round(1.6*S)), () => ({c:[255, 150+Math.random()*60|0, 195+Math.random()*40|0]})), N);
 
   // rose geometry on screen
-  roseR = Math.min(W*.27, 125*S, H*.13);
-  roseC = {x:cx, y:H*.30};
+  roseR = Math.min(W*.27, 125*S, H*.115);
+  roseC = {x:cx, y:H*.25};
   stemBase = roseC.y + roseR*2.48;
   const fs2 = Math.min(W/(NAME.length*.42+1), 96*S);
   nameSmallY = stemBase + 44*S + fs2*.75;
@@ -251,6 +265,7 @@ function layout(){
 
   document.getElementById('intro').style.top = (cy + eh/2 + 26*S) + 'px';
   document.getElementById('final').style.top = (stemBase + 18*S) + 'px';
+  document.getElementById('msgs').style.top = (nameSmallY + fs2*.62 + 10*S) + 'px';
 }
 
 /* ---------- particles ---------- */
@@ -288,7 +303,7 @@ function sparkle(x, y){
 }
 let hearts = [];
 function spawnHeart(){
-  hearts.push({x:Math.random()*W, y:H+20, vy:-(.3+Math.random()*.6)*S, sw:Math.random()*TAU, s:(10+Math.random()*14)*S, a:0, life:1});
+  hearts.push({x:Math.random()*W, y:H+20+Math.random()*120, vy:-(.3+Math.random()*.6)*S, sw:Math.random()*TAU, s:(10+Math.random()*14)*S, a:0, life:1});
 }
 
 /* ---------- state machine ---------- */
@@ -323,7 +338,8 @@ function update(now){
     if (t > 3700){ retarget(roseT); setPhase('rose', now); }
   } else if (phase === 'rose'){
     if (t > 1400) document.getElementById('final').classList.add('show');
-    if (t > 4000) document.getElementById('replay').classList.add('show');
+    if (t > 3000) document.getElementById('hint').classList.add('show');
+    if (t > 4200 && !msgStarted) startMessages();
     if (Math.random() < .05) spawnHeart();
   }
 
@@ -366,7 +382,7 @@ function update(now){
   }
   for (const s of sparks){ s.x+=s.vx; s.y+=s.vy; s.vy+=.02; s.life-=.025; }
   sparks = sparks.filter(s => s.life > 0);
-  for (const h of hearts){ h.y += h.vy; h.sw += .02; h.a = Math.min(1, h.a+.01); if (h.y < -30) h.life = 0; }
+  for (const h of hearts){ h.x += h.vx||0; if (h.vx) h.vx *= .97; if (h.burst) h.vy = h.vy*.97 - .02; h.y += h.vy; h.sw += .02; if (h.burst){ h.life -= .012; } h.a = Math.min(1, h.a+.01); if (h.y < -30) h.life = 0; }
   hearts = hearts.filter(h => h.life > 0);
 }
 
@@ -407,7 +423,7 @@ function draw(now){
   ctx.globalCompositeOperation = 'source-over';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   for (const h of hearts){
-    ctx.globalAlpha = h.a * .55 * Math.min(1, h.y/(H*.3));
+    ctx.globalAlpha = h.burst ? Math.max(0, h.life)*.9 : h.a * .55 * Math.min(1, h.y/(H*.3));
     ctx.fillStyle = '#ff7eb6'; ctx.font = `${h.s}px serif`;
     ctx.fillText('♥', h.x + Math.sin(h.sw)*14*S, h.y);
   }
@@ -462,9 +478,47 @@ function toggleSound(force){
 }
 
 
+
+/* ---------- messages ---------- */
+const MESSAGES = [
+  "Sen guldan ham chiroylisan 🌹",
+  "Tabassuming — dunyodagi eng go'zal manzara",
+  "Ko'zlaringda butun bir koinot bor ✨",
+  "Sen kulganingda hatto yulduzlar ham rashk qiladi",
+  "Har bir kuning baxt va quvonchga to'la bo'lsin",
+  "Sen borligingdan bu dunyo yanada yorqinroq",
+  "Seni uchratganim — hayotimdagi eng katta baxt",
+  "Sen — mening eng go'zal gulimsan ❤"
+];
+let msgStarted = false, msgTimers = [];
+function startMessages(){
+  msgStarted = true;
+  const el = document.getElementById('msg'), sign = document.getElementById('sign');
+  const HOLD = 3400, FADE = 900;
+  MESSAGES.forEach((m, i) => {
+    const t0 = i*(HOLD + FADE);
+    msgTimers.push(setTimeout(() => { el.textContent = m; el.classList.add('show'); }, t0));
+    if (i < MESSAGES.length-1) msgTimers.push(setTimeout(() => el.classList.remove('show'), t0 + HOLD));
+  });
+  const end = (MESSAGES.length-1)*(HOLD+FADE) + 1400;
+  msgTimers.push(setTimeout(() => { sign.classList.add('show'); if (audioOn) chime();
+    for (let i=0;i<40;i++) spawnHeart(); }, end));
+  msgTimers.push(setTimeout(() => document.getElementById('replay').classList.add('show'), end + 1800));
+}
+function stopMessages(){
+  msgTimers.forEach(clearTimeout); msgTimers = []; msgStarted = false;
+  document.getElementById('msg').classList.remove('show');
+  document.getElementById('sign').classList.remove('show');
+  document.getElementById('hint').classList.remove('show');
+}
 /* ---------- UI ---------- */
 document.getElementById('open').addEventListener('click', e => { e.stopPropagation(); openLetter(); });
-cv.addEventListener('click', openLetter);
+cv.addEventListener('click', e => {
+  if (phase === 'envelope') return openLetter();
+  if (phase === 'rose'){ for (let i=0;i<22;i++){ const a = Math.random()*TAU, v = 1+Math.random()*4;
+    hearts.push({x:e.clientX, y:e.clientY, vx:Math.cos(a)*v, vy:Math.sin(a)*v-1.5, sw:Math.random()*TAU, s:(9+Math.random()*16)*S, a:1, life:1, burst:true}); }
+    if (audioOn) chime(); }
+});
 document.getElementById('soundBtn').addEventListener('click', () => toggleSound());
 document.getElementById('asciiBtn').addEventListener('click', e => { ascii = !ascii; e.currentTarget.classList.toggle('on', ascii); });
 const qrModal = document.getElementById('qrModal');
@@ -472,6 +526,7 @@ document.getElementById('qrBtn').addEventListener('click', () => qrModal.classLi
 document.getElementById('qrClose').addEventListener('click', () => qrModal.classList.remove('show'));
 qrModal.addEventListener('click', e => { if (e.target === qrModal) qrModal.classList.remove('show'); });
 document.getElementById('replay').addEventListener('click', () => {
+  stopMessages();
   document.getElementById('final').classList.remove('show');
   document.getElementById('replay').classList.remove('show');
   document.getElementById('intro').classList.remove('hide');
