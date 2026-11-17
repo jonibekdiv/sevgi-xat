@@ -45,6 +45,16 @@
   #replay{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;opacity:0;pointer-events:none;transition:opacity 1s}
   #replay.show{opacity:1;pointer-events:auto}
 
+
+  #qrModal{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;background:rgba(5,3,10,.7);backdrop-filter:blur(8px);padding:20px}
+  #qrModal.show{display:flex;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .qrcard{background:rgba(18,10,24,.92);border:1px solid rgba(255,170,210,.35);border-radius:22px;padding:22px 22px 18px;text-align:center;box-shadow:0 0 60px rgba(255,90,170,.25)}
+  .qrcard svg{width:min(260px,70vw);height:auto;border-radius:12px;display:block}
+  .qrcard .t{font:400 34px/1 'Great Vibes',cursive;color:#ffb3d4;margin-bottom:14px}
+  .qrcard .u{font-size:11px;letter-spacing:.14em;color:#f3d7c4;margin-top:12px}
+  .qrcard .pill{margin-top:14px}
+  #intro,#final{text-shadow:0 2px 12px rgba(0,0,0,.6)}
 </style>
 </head>
 <body>
@@ -52,6 +62,7 @@
 <canvas id="fx"></canvas>
 
 <div class="top">
+  <button class="pill" id="qrBtn">QR</button>
   <button class="pill" id="asciiBtn">ASCII</button>
   <button class="pill" id="soundBtn">♥ Ovoz</button>
 </div>
@@ -64,159 +75,220 @@
 <div id="final"><div class="for">Sen uchun</div></div>
 <button class="pill" id="replay">↺ Qayta</button>
 
+<div id="qrModal">
+  <div class="qrcard">
+    <div class="t">Charos uchun</div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><rect width="33" height="33" fill="#fff"/><path d="M2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM27 2h1v1h-1zM28 2h1v1h-1zM29 2h1v1h-1zM30 2h1v1h-1zM2 3h1v1h-1zM8 3h1v1h-1zM10 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM30 3h1v1h-1zM2 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM15 4h1v1h-1zM17 4h1v1h-1zM21 4h1v1h-1zM24 4h1v1h-1zM26 4h1v1h-1zM27 4h1v1h-1zM28 4h1v1h-1zM30 4h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM27 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM12 6h1v1h-1zM13 6h1v1h-1zM14 6h1v1h-1zM17 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM11 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM17 7h1v1h-1zM24 7h1v1h-1zM30 7h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM29 8h1v1h-1zM30 8h1v1h-1zM10 9h1v1h-1zM11 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM2 10h1v1h-1zM8 10h1v1h-1zM10 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM18 10h1v1h-1zM19 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM24 10h1v1h-1zM27 10h1v1h-1zM28 10h1v1h-1zM29 10h1v1h-1zM2 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM10 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM18 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM29 11h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM22 12h1v1h-1zM23 12h1v1h-1zM24 12h1v1h-1zM25 12h1v1h-1zM2 13h1v1h-1zM4 13h1v1h-1zM6 13h1v1h-1zM9 13h1v1h-1zM10 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM20 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM3 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM11 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM21 14h1v1h-1zM22 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM30 14h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM18 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM22 15h1v1h-1zM24 15h1v1h-1zM25 15h1v1h-1zM26 15h1v1h-1zM29 15h1v1h-1zM30 15h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM20 16h1v1h-1zM24 16h1v1h-1zM27 16h1v1h-1zM28 16h1v1h-1zM2 17h1v1h-1zM3 17h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM10 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM17 17h1v1h-1zM21 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM28 17h1v1h-1zM30 17h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM7 18h1v1h-1zM8 18h1v1h-1zM9 18h1v1h-1zM10 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM22 18h1v1h-1zM25 18h1v1h-1zM27 18h1v1h-1zM28 18h1v1h-1zM2 19h1v1h-1zM3 19h1v1h-1zM6 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM21 19h1v1h-1zM22 19h1v1h-1zM23 19h1v1h-1zM24 19h1v1h-1zM25 19h1v1h-1zM26 19h1v1h-1zM28 19h1v1h-1zM29 19h1v1h-1zM30 19h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM8 20h1v1h-1zM9 20h1v1h-1zM13 20h1v1h-1zM14 20h1v1h-1zM17 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM22 20h1v1h-1zM23 20h1v1h-1zM26 20h1v1h-1zM27 20h1v1h-1zM30 20h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM12 21h1v1h-1zM13 21h1v1h-1zM15 21h1v1h-1zM20 21h1v1h-1zM21 21h1v1h-1zM22 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM2 22h1v1h-1zM5 22h1v1h-1zM7 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM16 22h1v1h-1zM17 22h1v1h-1zM19 22h1v1h-1zM21 22h1v1h-1zM22 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM26 22h1v1h-1zM28 22h1v1h-1zM29 22h1v1h-1zM30 22h1v1h-1zM10 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM16 23h1v1h-1zM22 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM7 24h1v1h-1zM8 24h1v1h-1zM12 24h1v1h-1zM13 24h1v1h-1zM14 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM24 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM2 25h1v1h-1zM8 25h1v1h-1zM11 25h1v1h-1zM12 25h1v1h-1zM13 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM20 25h1v1h-1zM22 25h1v1h-1zM26 25h1v1h-1zM2 26h1v1h-1zM4 26h1v1h-1zM5 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM11 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM16 26h1v1h-1zM19 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM22 26h1v1h-1zM23 26h1v1h-1zM24 26h1v1h-1zM25 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM2 27h1v1h-1zM4 27h1v1h-1zM5 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM11 27h1v1h-1zM16 27h1v1h-1zM19 27h1v1h-1zM20 27h1v1h-1zM23 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM29 27h1v1h-1zM2 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM15 28h1v1h-1zM16 28h1v1h-1zM17 28h1v1h-1zM18 28h1v1h-1zM19 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1zM29 28h1v1h-1zM2 29h1v1h-1zM8 29h1v1h-1zM12 29h1v1h-1zM14 29h1v1h-1zM18 29h1v1h-1zM19 29h1v1h-1zM20 29h1v1h-1zM21 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM27 29h1v1h-1zM28 29h1v1h-1zM30 29h1v1h-1zM2 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM6 30h1v1h-1zM7 30h1v1h-1zM8 30h1v1h-1zM10 30h1v1h-1zM11 30h1v1h-1zM12 30h1v1h-1zM14 30h1v1h-1zM17 30h1v1h-1zM21 30h1v1h-1zM26 30h1v1h-1zM27 30h1v1h-1zM28 30h1v1h-1z" fill="#2a0f1e"/></svg>
+    <div class="u">SEVGI-XAT.VERCEL.APP</div>
+    <button class="pill" id="qrClose">Yopish</button>
+  </div>
+</div>
+
 <script>
 const NAME = "Charos";
-document.getElementById('subText').textContent = `${NAME}, senga xat keldi`;
-document.title = `${NAME}, senga xat keldi 💌`;
 
 const bg = document.getElementById('bg'), bctx = bg.getContext('2d');
 const cv = document.getElementById('fx'), ctx = cv.getContext('2d');
 let W, H, DPR, S;
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TAU = Math.PI * 2;
+const ease = t => t<0?0:t>1?1:1-Math.pow(1-t,3);
+const easeBack = t => { t = Math.min(1, Math.max(0, t)); const c=1.5; return 1 + (c+1)*Math.pow(t-1,3) + c*Math.pow(t-1,2); };
 
-/* ---------- stars ---------- */
-let stars = [];
+/* ---------- background: nebula image + twinkling stars + parallax ---------- */
+const bgImg = new Image(); bgImg.src = 'bg.jpg';
+let stars = [], mx = .5, my = .5, pmx = .5, pmy = .5;
 function makeStars(){
-  const n = Math.round(W * H / 2600);
-  stars = Array.from({length:n}, () => ({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.1+.2,
-    p:Math.random()*Math.PI*2, s:.5+Math.random()*1.8, vy:.02+Math.random()*.06}));
+  const n = Math.round(W * H / 3800);
+  stars = Array.from({length:n}, () => ({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.3+.3,
+    p:Math.random()*TAU, s:.6+Math.random()*2.2, d:.3+Math.random()*.7}));
 }
-function drawStars(t){
+function drawBg(t){
   bctx.setTransform(DPR,0,0,DPR,0,0);
-  const g = bctx.createRadialGradient(W/2,H*.45,0,W/2,H*.45,Math.max(W,H)*.8);
-  g.addColorStop(0,'#1a1020'); g.addColorStop(.55,'#0d0911'); g.addColorStop(1,'#050407');
+  pmx += (mx-pmx)*.04; pmy += (my-pmy)*.04;
+  bctx.fillStyle = '#04040c'; bctx.fillRect(0,0,W,H);
+  if (bgImg.complete && bgImg.naturalWidth){
+    const z = 1.12 + Math.sin(t*.00005)*.03;
+    const sc = Math.max(W/bgImg.naturalWidth, H/bgImg.naturalHeight)*z;
+    const iw = bgImg.naturalWidth*sc, ih = bgImg.naturalHeight*sc;
+    const ox = (W-iw)/2 - (pmx-.5)*40*S + Math.sin(t*.00007)*14*S;
+    const oy = (H-ih)/2 - (pmy-.5)*30*S;
+    bctx.drawImage(bgImg, ox, oy, iw, ih);
+  }
+  // readability veil
+  const g = bctx.createRadialGradient(W/2,H*.45,0,W/2,H*.45,Math.max(W,H)*.75);
+  g.addColorStop(0,'rgba(6,3,12,.30)'); g.addColorStop(1,'rgba(3,2,8,.62)');
   bctx.fillStyle = g; bctx.fillRect(0,0,W,H);
   for (const s of stars){
-    s.y -= s.vy; if (s.y < 0) s.y = H;
-    const a = .25 + .75 * (.5 + .5*Math.sin(t*.001*s.s + s.p));
-    bctx.globalAlpha = a; bctx.fillStyle = '#fff';
-    bctx.fillRect(s.x, s.y, s.r, s.r);
+    const a = Math.pow(.5 + .5*Math.sin(t*.001*s.s + s.p), 3);
+    const x = s.x - (pmx-.5)*60*S*s.d, y = s.y - (pmy-.5)*40*S*s.d;
+    bctx.globalAlpha = a*.9; bctx.fillStyle = '#fff';
+    bctx.beginPath(); bctx.arc(x, y, s.r*(.6+a*.6), 0, TAU); bctx.fill();
+    if (a > .85 && s.r > 1.1){ bctx.globalAlpha = (a-.85)*3; bctx.fillRect(x-s.r*4, y-.4, s.r*8, .8); bctx.fillRect(x-.4, y-s.r*4, .8, s.r*8); }
   }
   bctx.globalAlpha = 1;
 }
 
-/* ---------- sampling helpers ---------- */
+/* ---------- sampling ---------- */
 const off = document.createElement('canvas'), octx = off.getContext('2d', {willReadFrequently:true});
 function sample(drawFn, step, colorFn){
   off.width = W; off.height = H;
-  octx.clearRect(0,0,W,H);
-  drawFn(octx);
+  octx.clearRect(0,0,W,H); drawFn(octx);
   const d = octx.getImageData(0,0,W,H).data, pts = [];
   for (let y=0; y<H; y+=step) for (let x=0; x<W; x+=step){
     const i = (y*W + x)*4;
-    if (d[i+3] > 120) pts.push({x:x+(Math.random()-.5)*step*.6, y:y+(Math.random()-.5)*step*.6, c:colorFn ? colorFn(x,y,d[i],d[i+1],d[i+2]) : [d[i],d[i+1],d[i+2]]});
+    if (d[i+3] > 120){ const c = colorFn(x,y,d[i],d[i+1],d[i+2]);
+      pts.push({x:x+(Math.random()-.5)*step*.6, y:y+(Math.random()-.5)*step*.6, c:c.c, heart:!!c.heart}); }
   }
   return pts;
 }
 function fit(pts, n){
   if (!pts.length) return [];
-  const out = [];
-  // shuffle copy
   const a = pts.slice(); for (let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}
-  for (let i=0;i<n;i++) out.push(a[i % a.length]);
-  return out;
+  const out = []; for (let i=0;i<n;i++) out.push(a[i % a.length]); return out;
 }
 
-/* ---------- target shapes ---------- */
-let N, envT, discR, nameT, roseT, textBox, roseY;
+/* ---------- 3D rose model (unit radius) ---------- */
+function roseModel(n){
+  const pts = [];
+  const nb = Math.round(n*.80), ns = Math.round(n*.08), nl = n - nb - ns;
+  const LAYERS = 6;
+  for (let i=0;i<nb;i++){
+    const L = Math.floor(Math.pow(Math.random(), .8)*LAYERS), lf = L/(LAYERS-1);
+    const P = 3 + L, j = (Math.random()*P)|0;
+    const phi = j*TAU/P + L*1.13;
+    const w = Math.PI/P*1.7;
+    const h = 1 - Math.pow(Math.random(), 1.3);          // bias to petal rim
+    let s = Math.random()*2-1;
+    const width = Math.sin(Math.PI*Math.min(1, h*1.05+.08));
+    const ang = phi + s*w*(.6+.4*h)*Math.max(.3, width);
+    const Rl = .34 + .13*L;
+    const th = Math.PI*(.12 + h*(.78 - .32*lf));      // sphere arc: inner petals close, outer open
+    let r = Rl*Math.sin(th)*(1 - .05*Math.abs(s));
+    const y = -.45 + Rl*Math.cos(th)*.92 - (h>.9 ? (h-.9)*lf*.4 : 0);
+    const col = lf < .2 ? [255,225,240] : lf < .45 ? [255,140,195] : lf < .75 ? [250,80,160] : [215,40,120];
+    const rim = h > .85 ? 1.25 : 1;
+    pts.push({x:Math.cos(ang)*r, y, z:Math.sin(ang)*r, c:col.map(v=>Math.min(255,v*rim)), bloom:true});
+  }
+  // stem
+  for (let i=0;i<ns;i++){
+    const t = Math.random();
+    pts.push({x:Math.sin(t*2.4)*.07, y:.28 + t*2.2, z:Math.cos(t*1.7)*.05 - .05, c:[70,230,165]});
+  }
+  // leaves + sepals
+  const leaves = [{a:.35, at:1.15, len:.75}, {a:Math.PI+.7, at:1.55, len:.65}];
+  for (let i=0;i<nl;i++){
+    if (i < nl*.18){ // sepals under bloom
+      const a = Math.random()*TAU, u = Math.random();
+      pts.push({x:Math.cos(a)*(.12+u*.28), y:.3+u*.12 + u*u*.15, z:Math.sin(a)*(.12+u*.28), c:[60,215,150]}); continue;
+    }
+    const lf = leaves[i%2], u = Math.random(), v = Math.random()*2-1;
+    const wd = Math.sin(Math.PI*u)*.2;
+    const dx = Math.cos(lf.a), dz = Math.sin(lf.a);
+    const along = u*lf.len, side = v*wd;
+    pts.push({x:dx*along - dz*side, y:lf.at - u*.32 + u*u*.22 + Math.abs(v)*.03, z:dz*along + dx*side,
+      c: Math.abs(v)<.12 ? [140,255,200] : [55,205,140]});
+  }
+  return pts;
+}
+
+/* ---------- layout / targets ---------- */
+let N, envT, discR, nameT, roseT, rose3, roseR, roseC, stemBase, textBox, nameSmallY;
 function layout(){
   const ew = Math.min(W*.78, 520*S), eh = ew*.62;
   const cx = W/2, cy = H*.42;
-  // envelope
   const env = sample(c => {
     c.strokeStyle = '#ffd7a8'; c.lineWidth = Math.max(2, 3*S); c.lineJoin='round';
     const x0=cx-ew/2, y0=cy-eh/2;
     c.strokeRect(x0,y0,ew,eh);
     c.beginPath(); c.moveTo(x0,y0); c.lineTo(cx,cy+eh*.08); c.lineTo(x0+ew,y0); c.stroke();
     c.beginPath(); c.moveTo(x0,y0+eh); c.lineTo(cx-ew*.12,cy+eh*.12); c.moveTo(x0+ew,y0+eh); c.lineTo(cx+ew*.12,cy+eh*.12); c.stroke();
-    // heart seal
+    c.font = `${Math.round(ew*.075)}px 'Press Start 2P', monospace`; c.textAlign='center'; c.textBaseline='middle';
+    const tw = c.measureText('FOR YOU').width, th = ew*.075, ty = cy+eh*.3;
+    textBox = {x0:cx-tw/2-ew*.03, x1:cx+tw/2+ew*.03, y0:ty-th*.9, y1:ty+th*.9};
+    c.globalCompositeOperation = 'destination-out';
+    c.fillRect(textBox.x0, textBox.y0, textBox.x1-textBox.x0, textBox.y1-textBox.y0);
+    c.globalCompositeOperation = 'source-over';
     c.fillStyle = '#ff6fa3';
     const hs = ew*.045, hx = cx, hy = cy+eh*.02;
     c.beginPath(); c.moveTo(hx,hy+hs*1.1);
     c.bezierCurveTo(hx-hs*2.2,hy-hs*.2,hx-hs*1.1,hy-hs*1.9,hx,hy-hs*.7);
     c.bezierCurveTo(hx+hs*1.1,hy-hs*1.9,hx+hs*2.2,hy-hs*.2,hx,hy+hs*1.1); c.fill();
-    // FOR YOU — clear the lines behind the text first
-    c.font = `${Math.round(ew*.075)}px 'Press Start 2P', monospace`; c.textAlign='center'; c.textBaseline='middle';
-    const tw = c.measureText('FOR YOU').width, th = ew*.075, ty = cy+eh*.3;
-    c.globalCompositeOperation = 'destination-out';
-    c.fillRect(cx-tw/2-ew*.03, ty-th*.9, tw+ew*.06, th*1.8);
-    c.globalCompositeOperation = 'source-over';
-    textBox = {x0:cx-tw/2-ew*.03, x1:cx+tw/2+ew*.03, y0:ty-th*.9, y1:ty+th*.9};
-    c.fillStyle = '#ffffff';
-    c.fillText('FOR YOU', cx, ty);
-  }, Math.max(2, Math.round(2.6*S)), (x,y,r,g,b) => r>240&&g>240 ? [255,250,245] : (g<150 ? [255,110,160] : [255,214,168]));
-  // faint interior "ascii dust"
+    c.fillStyle = '#ffffff'; c.fillText('FOR YOU', cx, ty);
+  }, Math.max(2, Math.round(2.6*S)), (x,y,r,g,b) => r>240&&g>240 ? {c:[255,250,245]} : (g<150 ? {c:[255,110,165], heart:true} : {c:[255,214,168]}));
+  envT = env;
+  envT.heartC = {x:cx, y:cy+eh*.0};
   const dust = [];
-  while (dust.length < env.length*.35){
+  while (dust.length < env.length*.3){
     const x = cx-ew/2+Math.random()*ew, y = cy-eh/2+Math.random()*eh;
     if (x>textBox.x0 && x<textBox.x1 && y>textBox.y0 && y<textBox.y1) continue;
     dust.push({x, y, c:[255,200,160], faint:true});
   }
-  N = Math.min(6500, Math.max(4200, Math.round(env.length*1.4)));
-  envT = fit(env.concat(dust), N);
+  N = Math.min(7000, Math.max(4500, Math.round(env.length*1.4)));
+  const hc = envT.heartC;
+  envT = fit(env.concat(dust), N); envT.heartC = hc;
 
-  discR = Math.min(W*.42, 380*S);
+  discR = Math.min(W*.44, 400*S);
 
-  // name (big)
-  const fs = Math.min(W/(NAME.length*.40+1), 200*S);
+  const fs = Math.min(W/(NAME.length*.40+1), 210*S);
   nameT = fit(sample(c => {
     c.fillStyle='#fff'; c.font = `${Math.round(fs)}px 'Great Vibes', cursive`; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(NAME, cx, H*.45);
-  }, Math.max(2, Math.round(1.7*S)), () => [255, 140+Math.random()*60|0, 185+Math.random()*40|0]), N);
+  }, Math.max(2, Math.round(1.6*S)), () => ({c:[255, 150+Math.random()*60|0, 195+Math.random()*40|0]})), N);
 
-  // rose + small name
-  const R = Math.min(W*.24, 130*S, H*.14), rx = cx, ry = H*.32; roseY = ry;
-  const rose = [];
-  const nb = Math.round(N*.58);
-  for (let i=0;i<nb;i++){
-    const th = Math.random()*Math.PI*2;
-    let r = R*Math.pow(Math.random(), .55);
-    const spike = Math.random()<.18 ? 1+Math.random()*.35 : 1;
-    r *= spike*(.88+.12*Math.abs(Math.sin(th*5)));
-    const y = ry + Math.sin(th)*r*.78 - (Math.cos(th*2)*R*.05);
-    const k = r/R;
-    const col = k<.35 ? [255,215,235] : k<.75 ? [255,105,170] : [235,60,130];
-    rose.push({x:rx+Math.cos(th)*r, y, c:col, bloom:true});
-  }
-  // stem
-  const stemTop = ry + R*.72, stemBot = ry + R*2.5;
-  const ns = Math.round(N*.07);
-  for (let i=0;i<ns;i++){
-    const t = Math.random(), y = stemTop + (stemBot-stemTop)*t;
-    rose.push({x: rx + Math.sin(t*3.2)*R*.06 + (Math.random()-.5)*3*S, y, c:[70,225,160]});
-  }
-  // leaves
-  const nl = Math.round(N*.06);
-  for (let i=0;i<nl;i++){
-    const side = i%2 ? 1 : -1, t = Math.random(), w = Math.sin(t*Math.PI)*R*.16*(Math.random());
-    const lx = rx + side*(t*R*.62), ly = stemTop + (stemBot-stemTop)*.5 - t*R*.22 + (Math.random()<.5?w:-w)*.6;
-    rose.push({x:lx, y:ly, c:[60,210,150]});
-  }
-  // small name
-  const fs2 = Math.min(W/(NAME.length*.42+1), 92*S);
-  const nameY = stemBot + 34*S + fs2*.75;
+  // rose geometry on screen
+  roseR = Math.min(W*.27, 125*S, H*.13);
+  roseC = {x:cx, y:H*.30};
+  stemBase = roseC.y + roseR*2.48;
+  const fs2 = Math.min(W/(NAME.length*.42+1), 96*S);
+  nameSmallY = stemBase + 44*S + fs2*.75;
+  const n3 = Math.round(N*.66);
+  rose3 = roseModel(n3);
   const small = sample(c => {
     c.fillStyle='#fff'; c.font = `${Math.round(fs2)}px 'Great Vibes', cursive`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(NAME, cx, nameY);
-  }, Math.max(2, Math.round(1.6*S)), () => [255,205,225]);
-  const rest = N - rose.length;
-  roseT = rose.concat(fit(small, Math.max(0, rest))).slice(0, N);
-  while (roseT.length < N) roseT.push(rose[(Math.random()*rose.length)|0]);
+    c.fillText(NAME, cx, nameSmallY);
+  }, Math.max(2, Math.round(1.5*S)), () => ({c:[255,210,230]}));
+  roseT = rose3.map(p => ({x:roseC.x, y:roseC.y, c:p.c, m3:p})).concat(fit(small, N - n3));
 
-  // place html
   document.getElementById('intro').style.top = (cy + eh/2 + 26*S) + 'px';
-  document.getElementById('final').style.top = (stemBot + 14*S) + 'px';
+  document.getElementById('final').style.top = (stemBase + 18*S) + 'px';
 }
 
 /* ---------- particles ---------- */
 let P = [];
 function initParticles(){
-  P = envT.map(t => ({x:Math.random()*W, y:Math.random()*H, vx:0, vy:0, tx:t.x, ty:t.y,
-    c:t.c.slice(), tc:t.c, faint:!!t.faint, a:Math.random()*Math.PI*2, r:Math.random(),
-    ch:'.:*+#%@&8$'[(Math.random()*10)|0], tw:Math.random()*6.28}));
+  P = envT.map((t,i) => ({x:Math.random()*W, y:Math.random()*H, vx:0, vy:0, tx:t.x, ty:t.y,
+    c:[255,255,255], tc:t.c, faint:!!t.faint, heart:t.heart, a:Math.random()*TAU, r:Math.random(), i,
+    ch:'.:*+#%@&8$'[(Math.random()*10)|0], tw:Math.random()*TAU, depth:1}));
 }
 function retarget(arr){
-  for (let i=0;i<P.length;i++){ const t = arr[i]; P[i].tx=t.x; P[i].ty=t.y; P[i].tc=t.c; P[i].faint=!!t.faint; P[i].bloom=!!t.bloom; }
+  for (let i=0;i<P.length;i++){ const t = arr[i], p = P[i];
+    p.tx=t.x; p.ty=t.y; p.tc=t.c; p.faint=!!t.faint; p.heart=!!t.heart; p.m3=t.m3||null; p.depth=1; }
+}
+
+/* ---------- rose rotation by pointer ---------- */
+let rotY = .4, rotX = .3, spin = 0, tiltT = .3, lastPX = null, dragging = false;
+function onMove(x, y, isTouch){
+  mx = x/W; my = y/H;
+  if (lastPX !== null && (!isTouch || dragging)) spin += (x - lastPX) * (isTouch ? .0011 : .00055);
+  lastPX = x;
+  tiltT = .3 + (my - .5) * .45;
+  sparkle(x, y);
+}
+addEventListener('pointermove', e => onMove(e.clientX, e.clientY, e.pointerType === 'touch'), {passive:true});
+addEventListener('pointerdown', e => { dragging = true; lastPX = e.clientX; });
+addEventListener('pointerup', () => { dragging = false; });
+addEventListener('pointerleave', () => { lastPX = null; });
+
+/* cursor sparkles + floating hearts */
+let sparks = [];
+function sparkle(x, y){
+  if (sparks.length > 160) return;
+  for (let k=0;k<2;k++) sparks.push({x, y, vx:(Math.random()-.5)*1.2, vy:(Math.random()-.5)*1.2-.3, life:1,
+    s:Math.random()*2+1, c:Math.random()<.5 ? '255,170,210' : '255,235,200'});
+}
+let hearts = [];
+function spawnHeart(){
+  hearts.push({x:Math.random()*W, y:H+20, vy:-(.3+Math.random()*.6)*S, sw:Math.random()*TAU, s:(10+Math.random()*14)*S, a:0, life:1});
 }
 
 /* ---------- state machine ---------- */
@@ -226,80 +298,130 @@ function setPhase(p, now){ phase = p; phaseStart = now; }
 function openLetter(){
   if (phase !== 'envelope') return;
   document.getElementById('intro').classList.add('hide');
-  const now = performance.now();
-  // burst outward
-  for (const p of P){ const a=Math.random()*6.28, s=2+Math.random()*6; p.vx+=Math.cos(a)*s; p.vy+=Math.sin(a)*s;
-    p.tc = [255, 80+Math.random()*90|0, 140+Math.random()*60|0]; p.faint=false; }
-  setPhase('vortex', now);
+  setPhase('opening', performance.now());
   if (!audioOn) toggleSound(true);
   chime();
 }
 
 function update(now){
   const t = now - phaseStart, cx = W/2;
-  if (phase === 'vortex'){
-    const cy = H*.45;
+  if (phase === 'opening' && t > 650){
+    for (const p of P){ const a=Math.random()*TAU, s=3+Math.random()*9; p.vx+=Math.cos(a)*s; p.vy+=Math.sin(a)*s;
+      p.tc = [255, 90+Math.random()*120|0, 160+Math.random()*70|0]; p.faint=false; p.heart=false; }
+    setPhase('vortex', now);
+  } else if (phase === 'vortex'){
+    const cy = H*.45, spd = .0016 + Math.min(t, 2600)*.0000009;
     for (const p of P){
-      const ang = p.a + t*.0022*(1.4 - p.r*.6);
-      const rr = discR*(.12 + .88*Math.sqrt(p.r));
-      p.tx = cx + Math.cos(ang)*rr; p.ty = cy + Math.sin(ang)*rr*.32;
+      const rr = discR*(.05 + .95*Math.sqrt(p.r));
+      const arm = (p.i % 2) * Math.PI;
+      const ang = arm + (rr/discR)*4.2 + t*spd*(1.5 - p.r*.7) + (p.a-Math.PI)*.28;
+      p.tx = cx + Math.cos(ang)*rr; p.ty = cy + Math.sin(ang)*rr*.36;
+      const k = p.r; p.tc = k < .12 ? [255,240,250] : k < .5 ? [255,120,195] : [200,90,255];
     }
-    if (t > 2600){ retarget(nameT); setPhase('name', now); }
+    if (t > 2900){ retarget(nameT); setPhase('name', now); }
   } else if (phase === 'name'){
-    if (t > 3600){ retarget(roseT); setPhase('rose', now); }
+    if (t > 3700){ retarget(roseT); setPhase('rose', now); }
   } else if (phase === 'rose'){
-    if (t > 900) document.getElementById('final').classList.add('show');
-    if (t > 3500) document.getElementById('replay').classList.add('show');
+    if (t > 1400) document.getElementById('final').classList.add('show');
+    if (t > 4000) document.getElementById('replay').classList.add('show');
+    if (Math.random() < .05) spawnHeart();
   }
 
-  const k = phase==='vortex' ? .05 : phase==='envelope' ? .045 : .035;
-  const damp = phase==='vortex' ? .86 : .82;
+  // rose rotation
+  spin *= .95; rotY += .0045 + spin; rotX += (tiltT - rotX)*.05;
+  const cy_ = Math.cos(rotY), sy_ = Math.sin(rotY), cx_ = Math.cos(rotX), sx_ = Math.sin(rotX);
+  const grow = phase === 'rose' ? easeBack((now - phaseStart)/2300) : 0;
+  const breathe = 1 + Math.sin(now*.0013)*.02;
+  const R = roseR, D = 4.2;
+
+  const k = phase==='vortex' ? .06 : phase==='rose' ? .075 : .045;
+  const damp = phase==='vortex' ? .86 : .80;
+  const hc = envT.heartC, pulse = phase==='opening' ? 1 + ease((now-phaseStart)/650)*.7 : 1 + Math.pow(Math.max(0,Math.sin(now*.004)),8)*.18;
   for (const p of P){
     let tx = p.tx, ty = p.ty;
-    if (phase === 'envelope'){ tx += Math.sin(now*.0015 + p.tw)*.8; ty += Math.cos(now*.0013 + p.tw)*.8; }
-    if (phase === 'rose' && p.bloom){ const br = 1 + Math.sin(now*.0012)*.025; tx = cx + (p.tx-cx)*br; ty = roseY + (p.ty-roseY)*br; }
+    if (phase === 'envelope' || phase === 'opening'){
+      if (p.heart){ tx = hc.x + (p.tx-hc.x)*pulse; ty = hc.y + (p.ty-hc.y)*pulse; }
+      const j = phase==='opening' ? ease((now-phaseStart)/650)*3*S : .8;
+      tx += Math.sin(now*.0015 + p.tw)*j + (phase==='opening' ? (Math.random()-.5)*j : 0);
+      ty += Math.cos(now*.0013 + p.tw)*j;
+    }
+    if (phase === 'rose' && p.m3){
+      const m = p.m3;
+      // grow upwards from stem base: scale model around stem foot
+      const g = Math.max(.001, grow), bs = m.bloom ? breathe : 1;
+      let x = m.x*bs, y = m.y*bs, z = m.z*bs;
+      y = 2.48 + (y - 2.48)*g; x *= g; z *= g;
+      // rotate Y then X (around bloom centre)
+      y -= 1.2; // pivot at middle of the flower
+      let x1 = x*cy_ + z*sy_, z1 = -x*sy_ + z*cy_;
+      let y1 = y*cx_ - z1*sx_, z2 = y*sx_ + z1*cx_;
+      const f = D/(D + z2);
+      tx = roseC.x + x1*R*f; ty = roseC.y + (y1*f + 1.2)*R;
+      p.depth = .45 + .55*Math.min(1, Math.max(0, (1.2 - z2)/2.4));
+    }
     p.vx = (p.vx + (tx - p.x)*k)*damp;
     p.vy = (p.vy + (ty - p.y)*k)*damp;
     p.x += p.vx; p.y += p.vy;
-    for (let j=0;j<3;j++) p.c[j] += (p.tc[j]-p.c[j])*.04;
+    for (let j=0;j<3;j++) p.c[j] += (p.tc[j]-p.c[j])*.05;
   }
+  for (const s of sparks){ s.x+=s.vx; s.y+=s.vy; s.vy+=.02; s.life-=.025; }
+  sparks = sparks.filter(s => s.life > 0);
+  for (const h of hearts){ h.y += h.vy; h.sw += .02; h.a = Math.min(1, h.a+.01); if (h.y < -30) h.life = 0; }
+  hearts = hearts.filter(h => h.life > 0);
 }
 
 function draw(now){
   ctx.setTransform(DPR,0,0,DPR,0,0);
-  ctx.clearRect(0,0,W,H);
+  // motion trails
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.fillStyle = `rgba(0,0,0,${phase==='vortex' ? .2 : phase==='rose' ? .42 : .34})`;
+  ctx.fillRect(0,0,W,H);
   ctx.globalCompositeOperation = 'lighter';
-  const sz = Math.max(1.6, 2.1*S);
-  if (ascii){
-    ctx.font = `${Math.round(7*S+3)}px 'JetBrains Mono', monospace`; ctx.textAlign='center'; ctx.textBaseline='middle';
-  }
+  const sz = Math.max(1.5, 2*S);
+  if (ascii){ ctx.font = `${Math.round(7*S+3)}px 'JetBrains Mono', monospace`; ctx.textAlign='center'; ctx.textBaseline='middle'; }
+  const wave = phase === 'name';
   for (const p of P){
-    const tw = .55 + .45*Math.sin(now*.004 + p.tw);
-    const a = (p.faint ? .2 : 1) * tw;
+    let tw = .55 + .45*Math.sin(now*.004 + p.tw);
+    if (wave) tw *= .65 + .5*Math.max(0, Math.sin(p.x*.012 - now*.005));
+    const a = (p.faint ? .2 : 1) * tw * p.depth;
     ctx.fillStyle = `rgba(${p.c[0]|0},${p.c[1]|0},${p.c[2]|0},${a})`;
     if (ascii) ctx.fillText(p.ch, p.x, p.y);
-    else ctx.fillRect(p.x, p.y, sz, sz);
+    else { const s = p.m3 ? sz*(.7+p.depth*.5) : sz; ctx.fillRect(p.x, p.y, s, s); }
   }
-  // soft glow pass
   if (!ascii){
-    for (let i=0;i<P.length;i+=5){ const p = P[i];
-      ctx.fillStyle = `rgba(${p.c[0]|0},${p.c[1]|0},${p.c[2]|0},${p.faint?0:.09})`;
-      ctx.beginPath(); ctx.arc(p.x,p.y,5*S,0,6.283); ctx.fill(); }
+    for (let i=0;i<P.length;i+=5){ const p = P[i]; if (p.faint) continue;
+      ctx.fillStyle = `rgba(${p.c[0]|0},${p.c[1]|0},${p.c[2]|0},${.08*p.depth})`;
+      ctx.beginPath(); ctx.arc(p.x,p.y,5.5*S,0,TAU); ctx.fill(); }
+  }
+  // rose aura
+  if (phase === 'rose'){
+    const g = ease((now-phaseStart)/2000);
+    const rg = ctx.createRadialGradient(roseC.x, roseC.y, 0, roseC.x, roseC.y, roseR*2.2);
+    rg.addColorStop(0, `rgba(255,90,170,${.16*g})`); rg.addColorStop(1, 'rgba(255,90,170,0)');
+    ctx.fillStyle = rg; ctx.fillRect(roseC.x-roseR*2.2, roseC.y-roseR*2.2, roseR*4.4, roseR*4.4);
+  }
+  for (const s of sparks){
+    ctx.fillStyle = `rgba(${s.c},${s.life*.9})`;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.s*s.life, 0, TAU); ctx.fill();
   }
   ctx.globalCompositeOperation = 'source-over';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  for (const h of hearts){
+    ctx.globalAlpha = h.a * .55 * Math.min(1, h.y/(H*.3));
+    ctx.fillStyle = '#ff7eb6'; ctx.font = `${h.s}px serif`;
+    ctx.fillText('♥', h.x + Math.sin(h.sw)*14*S, h.y);
+  }
+  ctx.globalAlpha = 1;
 }
 
-function loop(now){
-  drawStars(now); update(now); draw(now);
-  requestAnimationFrame(loop);
-}
+function loop(now){ drawBg(now); update(now); draw(now); requestAnimationFrame(loop); }
 
 function resize(){
   DPR = Math.min(2, window.devicePixelRatio||1);
   W = innerWidth; H = innerHeight; S = Math.max(.55, Math.min(1.4, Math.min(W, H*1.3)/900));
   for (const c of [bg,cv]){ c.width = W*DPR; c.height = H*DPR; }
   makeStars(); layout();
-  const map = {envelope:envT, name:nameT, rose:roseT};
+  const map = {envelope:envT, opening:envT, name:nameT, rose:roseT};
   if (!P.length) initParticles();
   else if (map[phase]) retarget(map[phase]);
 }
@@ -339,19 +461,23 @@ function toggleSound(force){
   document.getElementById('soundBtn').classList.toggle('on', audioOn);
 }
 
+
 /* ---------- UI ---------- */
 document.getElementById('open').addEventListener('click', e => { e.stopPropagation(); openLetter(); });
 cv.addEventListener('click', openLetter);
 document.getElementById('soundBtn').addEventListener('click', () => toggleSound());
 document.getElementById('asciiBtn').addEventListener('click', e => { ascii = !ascii; e.currentTarget.classList.toggle('on', ascii); });
+const qrModal = document.getElementById('qrModal');
+document.getElementById('qrBtn').addEventListener('click', () => qrModal.classList.add('show'));
+document.getElementById('qrClose').addEventListener('click', () => qrModal.classList.remove('show'));
+qrModal.addEventListener('click', e => { if (e.target === qrModal) qrModal.classList.remove('show'); });
 document.getElementById('replay').addEventListener('click', () => {
   document.getElementById('final').classList.remove('show');
   document.getElementById('replay').classList.remove('show');
   document.getElementById('intro').classList.remove('hide');
-  for (const p of P){ const a=Math.random()*6.28; p.vx+=Math.cos(a)*8; p.vy+=Math.sin(a)*8; }
+  for (const p of P){ const a=Math.random()*TAU; p.vx+=Math.cos(a)*8; p.vy+=Math.sin(a)*8; }
   retarget(envT); setPhase('envelope', performance.now());
 });
-
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); });
 (document.fonts ? document.fonts.load("40px 'Great Vibes'").then(()=>document.fonts.load("20px 'Press Start 2P'")) : Promise.resolve())
   .catch(()=>{}).finally(() => { resize(); requestAnimationFrame(loop); });
