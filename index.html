@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Senga xat keldi 💌</title>
+<meta name="description" content="Senga maxsus xat keldi — konvertni och.">
+<meta property="og:title" content="Senga xat keldi 💌">
+<meta property="og:description" content="Konvertni och — ichida sen uchun sovg'a bor.">
+<meta name="theme-color" content="#07060b">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Press+Start+2P&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#07060b;overflow:hidden;color:#f3dcd0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'JetBrains Mono',ui-monospace,monospace}
+  canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+  #bg{z-index:0}
+  #fx{z-index:1}
+
+  .top{position:fixed;top:16px;right:16px;z-index:5;display:flex;gap:8px}
+  .top.left{left:16px;right:auto}
+  .pill{font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.18em;text-transform:uppercase;
+    color:#f6d9c6;background:rgba(20,14,22,.55);border:1px solid rgba(246,200,170,.35);
+    padding:8px 12px;border-radius:999px;cursor:pointer;backdrop-filter:blur(6px);transition:.25s}
+  .pill:hover{border-color:#f6c8aa;background:rgba(60,30,40,.6)}
+  .pill.on{background:#f6c8aa;color:#1a0f14}
+
+  #intro{position:fixed;left:0;right:0;z-index:4;display:flex;flex-direction:column;align-items:center;gap:14px;
+    transition:opacity .8s ease, transform .8s ease}
+  #intro.hide{opacity:0;transform:translateY(10px);pointer-events:none}
+  #intro .sub{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:#f3d7c4;text-shadow:0 0 12px rgba(255,170,140,.45);text-align:center;padding:0 16px}
+  #open{font:600 10px/1 'JetBrains Mono',monospace;letter-spacing:.24em;text-transform:uppercase;color:#ffd9bf;
+    background:rgba(40,18,22,.6);border:1px solid #e9a37d;border-radius:999px;padding:11px 20px;cursor:pointer;
+    box-shadow:0 0 18px rgba(233,140,100,.35), inset 0 0 12px rgba(233,140,100,.15);animation:pulse 2.4s ease-in-out infinite}
+  #open:hover{background:rgba(90,35,40,.7)}
+  @keyframes pulse{50%{box-shadow:0 0 30px rgba(255,150,120,.6), inset 0 0 14px rgba(255,150,120,.25)}}
+
+  #final{position:fixed;left:0;right:0;z-index:4;text-align:center;pointer-events:none;opacity:0;transition:opacity 1.6s ease}
+  #final.show{opacity:1}
+  #final .for{font:italic 400 clamp(18px,2.6vw,28px)/1 'Cormorant Garamond',serif;letter-spacing:.06em;color:#f7e6dc;text-shadow:0 0 14px rgba(255,160,190,.5)}
+
+  #replay{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;opacity:0;pointer-events:none;transition:opacity 1s}
+  #replay.show{opacity:1;pointer-events:auto}
+
+  /* creator modal */
+  #maker{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;background:rgba(5,3,8,.72);backdrop-filter:blur(6px);padding:20px}
+  #maker.show{display:flex}
+  .card{width:min(420px,100%);background:#120c14;border:1px solid rgba(246,200,170,.3);border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .card h3{font:italic 400 30px/1.1 'Great Vibes',cursive;color:#ffb3cf;margin-bottom:6px}
+  .card p{font-size:11px;color:#c9aeb0;letter-spacing:.04em;line-height:1.6;margin-bottom:16px}
+  .card input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(246,200,170,.35);background:#0b070d;color:#fff;font:14px 'JetBrains Mono',monospace;outline:none}
+  .card input:focus{border-color:#ff9cc2}
+  .card .out{margin-top:12px;font-size:11px;word-break:break-all;color:#ffd0b8;min-height:16px}
+  .card .row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .card .row .pill{flex:1;text-align:center;padding:11px}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<canvas id="fx"></canvas>
+
+<div class="top left"><button class="pill" id="makeBtn" title="O'z linkingni yarat">✎ Ism</button></div>
+<div class="top">
+  <button class="pill" id="asciiBtn">ASCII</button>
+  <button class="pill" id="soundBtn">♥ Ovoz</button>
+</div>
+
+<div id="intro">
+  <div class="sub" id="subText">Senga xat keldi</div>
+  <button id="open">Konvertni ochish</button>
+</div>
+
+<div id="final"><div class="for">Sen uchun</div></div>
+<button class="pill" id="replay">↺ Qayta</button>
+
+<div id="maker">
+  <div class="card">
+    <h3>O'z xatingni yarat</h3>
+    <p>Ismni yoz — shu ism bilan maxsus link tayyor bo'ladi. Linkni yoki QR kodni sevgan insoningga yubor.</p>
+    <input id="nameInput" maxlength="24" placeholder="Masalan: Gulirano" autocomplete="off">
+    <div class="out" id="linkOut"></div>
+    <div class="row">
+      <button class="pill" id="copyBtn">Nusxa olish</button>
+      <button class="pill" id="goBtn">Ko'rish</button>
+      <button class="pill" id="closeBtn">Yopish</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ SOZLAMALAR ============
+   Ismni o'zgartirish: linkga ?name=Ism qo'shing
+   masalan: https://sayt.vercel.app/?name=Gulirano
+   Link bo'lmasa DEFAULT_NAME chiqadi.                */
+const DEFAULT_NAME = "Azizam";
+/* =================================== */
+
+const params = new URLSearchParams(location.search);
+const NAME = (params.get('name') || params.get('n') || DEFAULT_NAME).trim().slice(0, 24) || DEFAULT_NAME;
+document.getElementById('subText').textContent = `${NAME}, senga xat keldi`;
+document.title = `${NAME}, senga xat keldi 💌`;
+
+const bg = document.getElementById('bg'), bctx = bg.getContext('2d');
+const cv = document.getElementById('fx'), ctx = cv.getContext('2d');
+let W, H, DPR, S;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- stars ---------- */
+let stars = [];
+function makeStars(){
+  const n = Math.round(W * H / 2600);
+  stars = Array.from({length:n}, () => ({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.1+.2,
+    p:Math.random()*Math.PI*2, s:.5+Math.random()*1.8, vy:.02+Math.random()*.06}));
+}
+function drawStars(t){
+  bctx.setTransform(DPR,0,0,DPR,0,0);
+  const g = bctx.createRadialGradient(W/2,H*.45,0,W/2,H*.45,Math.max(W,H)*.8);
+  g.addColorStop(0,'#1a1020'); g.addColorStop(.55,'#0d0911'); g.addColorStop(1,'#050407');
+  bctx.fillStyle = g; bctx.fillRect(0,0,W,H);
+  for (const s of stars){
+    s.y -= s.vy; if (s.y < 0) s.y = H;
+    const a = .25 + .75 * (.5 + .5*Math.sin(t*.001*s.s + s.p));
+    bctx.globalAlpha = a; bctx.fillStyle = '#fff';
+    bctx.fillRect(s.x, s.y, s.r, s.r);
+  }
+  bctx.globalAlpha = 1;
+}
+
+/* ---------- sampling helpers ---------- */
+const off = document.createElement('canvas'), octx = off.getContext('2d', {willReadFrequently:true});
+function sample(drawFn, step, colorFn){
+  off.width = W; off.height = H;
+  octx.clearRect(0,0,W,H);
+  drawFn(octx);
+  const d = octx.getImageData(0,0,W,H).data, pts = [];
+  for (let y=0; y<H; y+=step) for (let x=0; x<W; x+=step){
+    const i = (y*W + x)*4;
+    if (d[i+3] > 120) pts.push({x:x+(Math.random()-.5)*step*.6, y:y+(Math.random()-.5)*step*.6, c:colorFn ? colorFn(x,y,d[i],d[i+1],d[i+2]) : [d[i],d[i+1],d[i+2]]});
+  }
+  return pts;
+}
+function fit(pts, n){
+  if (!pts.length) return [];
+  const out = [];
+  // shuffle copy
+  const a = pts.slice(); for (let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}
+  for (let i=0;i<n;i++) out.push(a[i % a.length]);
+  return out;
+}
+
+/* ---------- target shapes ---------- */
+let N, envT, discR, nameT, roseT;
+function layout(){
+  const ew = Math.min(W*.78, 520*S), eh = ew*.62;
+  const cx = W/2, cy = H*.42;
+  // envelope
+  const env = sample(c => {
+    c.strokeStyle = '#ffd7a8'; c.lineWidth = Math.max(2, 3*S); c.lineJoin='round';
+    const x0=cx-ew/2, y0=cy-eh/2;
+    c.strokeRect(x0,y0,ew,eh);
+    c.beginPath(); c.moveTo(x0,y0); c.lineTo(cx,cy+eh*.08); c.lineTo(x0+ew,y0); c.stroke();
+    c.beginPath(); c.moveTo(x0,y0+eh); c.lineTo(cx-ew*.12,cy+eh*.12); c.moveTo(x0+ew,y0+eh); c.lineTo(cx+ew*.12,cy+eh*.12); c.stroke();
+    // heart seal
+    c.fillStyle = '#ff6fa3';
+    const hs = ew*.045, hx = cx, hy = cy+eh*.02;
+    c.beginPath(); c.moveTo(hx,hy+hs*1.1);
+    c.bezierCurveTo(hx-hs*2.2,hy-hs*.2,hx-hs*1.1,hy-hs*1.9,hx,hy-hs*.7);
+    c.bezierCurveTo(hx+hs*1.1,hy-hs*1.9,hx+hs*2.2,hy-hs*.2,hx,hy+hs*1.1); c.fill();
+    // FOR YOU
+    c.fillStyle = '#ffffff';
+    c.font = `${Math.round(ew*.075)}px 'Press Start 2P', monospace`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('FOR YOU', cx, cy+eh*.3);
+  }, Math.max(2, Math.round(2.6*S)), (x,y,r,g,b) => r>240&&g>240 ? [255,250,245] : (g<150 ? [255,110,160] : [255,214,168]));
+  // faint interior "ascii dust"
+  const dust = [];
+  for (let i=0;i<env.length*.35;i++) dust.push({x:cx-ew/2+Math.random()*ew, y:cy-eh/2+Math.random()*eh, c:[255,200,160], faint:true});
+  N = Math.min(5200, Math.max(2600, Math.round(env.length*1.25)));
+  envT = fit(env.concat(dust), N);
+
+  discR = Math.min(W*.42, 380*S);
+
+  // name (big)
+  const fs = Math.min(W/(NAME.length*.42+1), 190*S);
+  nameT = fit(sample(c => {
+    c.fillStyle='#fff'; c.font = `${Math.round(fs)}px 'Great Vibes', cursive`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(NAME, cx, H*.45);
+  }, Math.max(2, Math.round(2.2*S)), () => [255,150,190]), N);
+
+  // rose + small name
+  const R = Math.min(W*.16, 120*S), rx = cx, ry = H*.30;
+  const rose = [];
+  const nb = Math.round(N*.58);
+  for (let i=0;i<nb;i++){
+    const th = Math.random()*Math.PI*2;
+    let r = R*Math.pow(Math.random(), .55);
+    const spike = Math.random()<.18 ? 1+Math.random()*.35 : 1;
+    r *= spike*(.88+.12*Math.abs(Math.sin(th*5)));
+    const y = ry + Math.sin(th)*r*.78 - (Math.cos(th*2)*R*.05);
+    const k = r/R;
+    const col = k<.35 ? [255,215,235] : k<.75 ? [255,105,170] : [235,60,130];
+    rose.push({x:rx+Math.cos(th)*r, y, c:col, bloom:true});
+  }
+  // stem
+  const stemTop = ry + R*.72, stemBot = H*.62;
+  const ns = Math.round(N*.07);
+  for (let i=0;i<ns;i++){
+    const t = Math.random(), y = stemTop + (stemBot-stemTop)*t;
+    rose.push({x: rx + Math.sin(t*3.2)*R*.06 + (Math.random()-.5)*3*S, y, c:[70,225,160]});
+  }
+  // leaves
+  const nl = Math.round(N*.06);
+  for (let i=0;i<nl;i++){
+    const side = i%2 ? 1 : -1, t = Math.random(), w = Math.sin(t*Math.PI)*R*.16*(Math.random());
+    const lx = rx + side*(t*R*.62), ly = stemTop + (stemBot-stemTop)*.5 - t*R*.22 + (Math.random()<.5?w:-w)*.6;
+    rose.push({x:lx, y:ly, c:[60,210,150]});
+  }
+  // small name
+  const fs2 = Math.min(W/(NAME.length*.42+1), 92*S);
+  const small = sample(c => {
+    c.fillStyle='#fff'; c.font = `${Math.round(fs2)}px 'Great Vibes', cursive`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(NAME, cx, H*.775);
+  }, Math.max(2, Math.round(1.6*S)), () => [255,205,225]);
+  const rest = N - rose.length;
+  roseT = rose.concat(fit(small, Math.max(0, rest))).slice(0, N);
+  while (roseT.length < N) roseT.push(rose[(Math.random()*rose.length)|0]);
+
+  // place html
+  document.getElementById('intro').style.top = (cy + eh/2 + 26*S) + 'px';
+  document.getElementById('final').style.top = (H*.775 - fs2*.95 - 18*S) + 'px';
+}
+
+/* ---------- particles ---------- */
+let P = [];
+function initParticles(){
+  P = envT.map(t => ({x:Math.random()*W, y:Math.random()*H, vx:0, vy:0, tx:t.x, ty:t.y,
+    c:t.c.slice(), tc:t.c, faint:!!t.faint, a:Math.random()*Math.PI*2, r:Math.random(),
+    ch:'.:*+#%@&8$'[(Math.random()*10)|0], tw:Math.random()*6.28}));
+}
+function retarget(arr){
+  for (let i=0;i<P.length;i++){ const t = arr[i]; P[i].tx=t.x; P[i].ty=t.y; P[i].tc=t.c; P[i].faint=!!t.faint; P[i].bloom=!!t.bloom; }
+}
+
+/* ---------- state machine ---------- */
+let phase = 'envelope', phaseStart = 0, ascii = false;
+function setPhase(p, now){ phase = p; phaseStart = now; }
+
+function openLetter(){
+  if (phase !== 'envelope') return;
+  document.getElementById('intro').classList.add('hide');
+  const now = performance.now();
+  // burst outward
+  for (const p of P){ const a=Math.random()*6.28, s=2+Math.random()*6; p.vx+=Math.cos(a)*s; p.vy+=Math.sin(a)*s;
+    p.tc = [255, 80+Math.random()*90|0, 140+Math.random()*60|0]; p.faint=false; }
+  setPhase('vortex', now);
+  if (!audioOn) toggleSound(true);
+  chime();
+}
+
+function update(now){
+  const t = now - phaseStart, cx = W/2;
+  if (phase === 'vortex'){
+    const cy = H*.45;
+    for (const p of P){
+      const ang = p.a + t*.0022*(1.4 - p.r*.6);
+      const rr = discR*(.12 + .88*Math.sqrt(p.r));
+      p.tx = cx + Math.cos(ang)*rr; p.ty = cy + Math.sin(ang)*rr*.32;
+    }
+    if (t > 2600){ retarget(nameT); setPhase('name', now); }
+  } else if (phase === 'name'){
+    if (t > 3600){ retarget(roseT); setPhase('rose', now); }
+  } else if (phase === 'rose'){
+    if (t > 900) document.getElementById('final').classList.add('show');
+    if (t > 3500) document.getElementById('replay').classList.add('show');
+  }
+
+  const k = phase==='vortex' ? .05 : phase==='envelope' ? .045 : .035;
+  const damp = phase==='vortex' ? .86 : .82;
+  for (const p of P){
+    let tx = p.tx, ty = p.ty;
+    if (phase === 'envelope'){ tx += Math.sin(now*.0015 + p.tw)*.8; ty += Math.cos(now*.0013 + p.tw)*.8; }
+    if (phase === 'rose' && p.bloom){ const br = 1 + Math.sin(now*.0012)*.025; tx = cx + (p.tx-cx)*br; ty = H*.30 + (p.ty-H*.30)*br; }
+    p.vx = (p.vx + (tx - p.x)*k)*damp;
+    p.vy = (p.vy + (ty - p.y)*k)*damp;
+    p.x += p.vx; p.y += p.vy;
+    for (let j=0;j<3;j++) p.c[j] += (p.tc[j]-p.c[j])*.04;
+  }
+}
+
+function draw(now){
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.clearRect(0,0,W,H);
+  ctx.globalCompositeOperation = 'lighter';
+  const sz = Math.max(1.6, 2.1*S);
+  if (ascii){
+    ctx.font = `${Math.round(7*S+3)}px 'JetBrains Mono', monospace`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  }
+  for (const p of P){
+    const tw = .55 + .45*Math.sin(now*.004 + p.tw);
+    const a = (p.faint ? .2 : 1) * tw;
+    ctx.fillStyle = `rgba(${p.c[0]|0},${p.c[1]|0},${p.c[2]|0},${a})`;
+    if (ascii) ctx.fillText(p.ch, p.x, p.y);
+    else ctx.fillRect(p.x, p.y, sz, sz);
+  }
+  // soft glow pass
+  if (!ascii){
+    for (let i=0;i<P.length;i+=5){ const p = P[i];
+      ctx.fillStyle = `rgba(${p.c[0]|0},${p.c[1]|0},${p.c[2]|0},${p.faint?0:.09})`;
+      ctx.beginPath(); ctx.arc(p.x,p.y,5*S,0,6.283); ctx.fill(); }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function loop(now){
+  drawStars(now); update(now); draw(now);
+  requestAnimationFrame(loop);
+}
+
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio||1);
+  W = innerWidth; H = innerHeight; S = Math.max(.55, Math.min(1.4, Math.min(W, H*1.3)/900));
+  for (const c of [bg,cv]){ c.width = W*DPR; c.height = H*DPR; }
+  makeStars(); layout();
+  const map = {envelope:envT, name:nameT, rose:roseT};
+  if (!P.length) initParticles();
+  else if (map[phase]) retarget(map[phase]);
+}
+
+/* ---------- sound (WebAudio music box) ---------- */
+let actx, master, audioOn = false, seqTimer;
+const notes = [0,4,7,12, 7,4, 2,5,9,14, 9,5, -3,0,4,9, 4,0, -1,2,7,11, 7,2];
+function tone(f, when, dur, vol){
+  const o = actx.createOscillator(), g = actx.createGain(), o2 = actx.createOscillator(), g2 = actx.createGain();
+  o.type='sine'; o.frequency.value=f; o2.type='sine'; o2.frequency.value=f*2;
+  g.gain.setValueAtTime(0,when); g.gain.linearRampToValueAtTime(vol,when+.01); g.gain.exponentialRampToValueAtTime(.0001,when+dur);
+  g2.gain.setValueAtTime(0,when); g2.gain.linearRampToValueAtTime(vol*.25,when+.01); g2.gain.exponentialRampToValueAtTime(.0001,when+dur*.6);
+  o.connect(g).connect(master); o2.connect(g2).connect(master);
+  o.start(when); o2.start(when); o.stop(when+dur); o2.stop(when+dur);
+}
+function startSeq(){
+  let i = 0, next = actx.currentTime + .1;
+  const base = 523.25, step = .32;
+  clearInterval(seqTimer);
+  seqTimer = setInterval(() => {
+    while (next < actx.currentTime + .4){
+      tone(base*Math.pow(2, notes[i%notes.length]/12), next, 1.6, .09);
+      if (i%6===0) tone(base/2*Math.pow(2, notes[i%notes.length]/12), next, 2.4, .06);
+      next += step; i++;
+    }
+  }, 100);
+}
+function chime(){ if (!audioOn) return; const n=actx.currentTime; [0,4,7,12,16].forEach((s,i)=>tone(784*Math.pow(2,s/12), n+i*.07, 1.4, .07)); }
+function toggleSound(force){
+  const want = typeof force === 'boolean' ? force : !audioOn;
+  if (want){
+    if (!actx){ actx = new (window.AudioContext||window.webkitAudioContext)(); master = actx.createGain(); master.gain.value = .8;
+      const d = actx.createDelay(); d.delayTime.value=.28; const fb = actx.createGain(); fb.gain.value=.32;
+      master.connect(actx.destination); master.connect(d); d.connect(fb).connect(d); d.connect(actx.destination); }
+    actx.resume(); startSeq(); audioOn = true;
+  } else { clearInterval(seqTimer); audioOn = false; }
+  document.getElementById('soundBtn').classList.toggle('on', audioOn);
+}
+
+/* ---------- UI ---------- */
+document.getElementById('open').addEventListener('click', e => { e.stopPropagation(); openLetter(); });
+cv.addEventListener('click', openLetter);
+document.getElementById('soundBtn').addEventListener('click', () => toggleSound());
+document.getElementById('asciiBtn').addEventListener('click', e => { ascii = !ascii; e.currentTarget.classList.toggle('on', ascii); });
+document.getElementById('replay').addEventListener('click', () => {
+  document.getElementById('final').classList.remove('show');
+  document.getElementById('replay').classList.remove('show');
+  document.getElementById('intro').classList.remove('hide');
+  for (const p of P){ const a=Math.random()*6.28; p.vx+=Math.cos(a)*8; p.vy+=Math.sin(a)*8; }
+  retarget(envT); setPhase('envelope', performance.now());
+});
+
+const maker = document.getElementById('maker'), nameInput = document.getElementById('nameInput'), linkOut = document.getElementById('linkOut');
+function linkFor(n){ const u = new URL(location.origin + location.pathname); if (n) u.searchParams.set('name', n); return u.toString(); }
+function refreshLink(){ const n = nameInput.value.trim(); linkOut.textContent = n ? linkFor(n) : ''; }
+document.getElementById('makeBtn').addEventListener('click', () => { maker.classList.add('show'); nameInput.value = NAME === DEFAULT_NAME ? '' : NAME; refreshLink(); setTimeout(()=>nameInput.focus(), 50); });
+document.getElementById('closeBtn').addEventListener('click', () => maker.classList.remove('show'));
+maker.addEventListener('click', e => { if (e.target === maker) maker.classList.remove('show'); });
+nameInput.addEventListener('input', refreshLink);
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('goBtn').click(); });
+document.getElementById('goBtn').addEventListener('click', () => { const n = nameInput.value.trim(); if (n) location.href = linkFor(n); });
+document.getElementById('copyBtn').addEventListener('click', async e => {
+  const n = nameInput.value.trim(); if (!n) return nameInput.focus();
+  try { await navigator.clipboard.writeText(linkFor(n)); e.currentTarget.textContent = 'Nusxalandi ✓'; }
+  catch { linkOut.style.userSelect='all'; }
+  setTimeout(() => e.currentTarget.textContent = 'Nusxa olish', 1600);
+});
+
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); });
+(document.fonts ? document.fonts.load("40px 'Great Vibes'").then(()=>document.fonts.load("20px 'Press Start 2P'")) : Promise.resolve())
+  .catch(()=>{}).finally(() => { resize(); requestAnimationFrame(loop); });
+</script>
+</body>
+</html>
