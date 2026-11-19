@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Bizning muzeyimiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@1,500&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: tender, quiet, a gift for two
+   IDEA: a tiny private night museum you walk through as a penguin
+   PICTURE: the 3D hall itself, warm spotlights on framed photos
+   COLOUR and TYPE: near-black hall, amber light, rose accent; Great Vibes + Manrope
+   LAYOUT: full-screen scene, title top, joystick bottom-right, upload top-left */
+:root{color-scheme:dark;--bg:#07060a;--ink:#f6efe6;--muted:#b9ab9c;--rose:#ff8fa8;--glass:rgba(20,16,18,.62)}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.5 Manrope,system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+#c{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none}
+.ui{position:fixed;z-index:5}
+.pill{background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:999px;color:var(--ink);font:600 13px Manrope,sans-serif;padding:10px 16px;min-height:40px;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.pill:focus-visible,button:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+#joy{right:clamp(18px,5vw,40px);bottom:clamp(22px,5vh,44px);width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.18);touch-action:none}
+#knob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d9d4f2 60%,#a9a2c9);box-shadow:0 4px 18px rgba(0,0,0,.5),0 0 18px rgba(200,190,255,.35);pointer-events:none}
+#near{left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;transition:.3s;pointer-events:none;max-width:calc(100vw - 190px)}
+#near.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#near span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#near b{color:var(--rose);flex:none}
+#lb{position:fixed;inset:0;z-index:20;background:rgba(5,4,6,.92);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:24px}
+#lb.on{display:flex;animation:fade .35s}
+#lb img{max-width:min(92vw,900px);max-height:72vh;border:10px solid #f3ede4;box-shadow:0 20px 60px rgba(0,0,0,.6);border-radius:2px;background:#f3ede4}
+#cap{background:transparent;border:0;border-bottom:1px dashed rgba(255,255,255,.25);color:#ffe3c7;font:28px/1.2 "Great Vibes",cursive;text-align:center;width:min(90vw,520px);padding:4px}
+#cap:focus{outline:none;border-bottom-color:var(--rose)}
+.row{display:flex;gap:10px}
+.lbbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:var(--ink);border-radius:999px;min-width:44px;height:44px;padding:0 16px;font:600 14px Manrope,sans-serif;cursor:pointer}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+#home{top:14px;left:14px}#add{top:14px;right:14px}
+#help{left:50%;bottom:24px;transform:translateX(-50%);background:rgba(20,16,18,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px 16px;font-size:12.5px;line-height:1.5;text-align:center;color:#d9cfc4;white-space:nowrap;transition:opacity 1s;pointer-events:none}
+#help b{color:#fff}#help.off{opacity:0}
+#loader{position:fixed;inset:0;z-index:30;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#8c8178;font-size:13px;transition:opacity 1.2s}
+#loader.off{opacity:0;pointer-events:none}
+#loader i{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.15);border-top-color:#fff;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#loader i{animation-duration:3s}}
+@media(max-width:600px){#joy{width:110px;height:110px}#help{bottom:150px}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<button class="ui pill" id="home">↺ Boshidan</button>
+<label class="ui pill" id="add" for="file">+ Rasm</label>
+<input type="file" id="file" accept="image/*" multiple hidden>
+<div class="ui" id="help">O'ngdagi doira bilan <b>yuring</b> · ekranni surib <b>aylantiring</b><br>Rasmga bosing — yaqindan ko'rasiz</div>
+<div class="ui pill" id="near"><span id="nearTxt"></span><b>Ko'rish</b></div>
+<div class="ui" id="joy"><div id="knob"></div></div>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Rasm">
+  <img id="lbImg" alt="">
+  <input id="cap" aria-label="Rasm izohi" maxlength="40">
+  <div class="row">
+    <button class="lbbtn" id="prev" aria-label="Oldingi">‹</button>
+    <button class="lbbtn" id="close">Yopish</button>
+    <button class="lbbtn" id="next" aria-label="Keyingi">›</button>
+  </div>
+</div>
+
+<div id="loader"><i></i><span>Muzey ochilmoqda…</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+{
+/* ====== SOZLAMALAR ======
+   O'z saytingizga joylasangiz, rasmlarni "photos" papkasiga qo'yib, yo'llarini shu yerga yozing:
+   photos: ['photos/1.jpg','photos/2.jpg', ...]  (8 tagacha) */
+const CONFIG = {
+  photos: ['photos/1.jpg','photos/2.jpg','photos/3.jpg','photos/4.jpg','photos/5.jpg','photos/6.jpg','photos/7.jpg','photos/8.jpg'],
+  captions: ["Eng go'zal kecha","Kuz ranglari","Pushti kayfiyat","Uyalchoq qizim","Gulli kun","Binafsha oqshom","Shu nigohing","Sirli go'zalim"]
+};
+const N = 8, W = 16, L = 40, H = 6;
+const $ = s => document.querySelector(s);
+
+const canvas = $('#c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0d0a0c);
+scene.fog = new THREE.Fog(0x0d0a0c, 16, 50);
+const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
+
+function radial(inner, outer, size = 256){
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const g = c.getContext('2d'), r = size/2;
+  const gr = g.createRadialGradient(r, r, 0, r, r, r);
+  gr.addColorStop(0, inner); gr.addColorStop(1, outer);
+  g.fillStyle = gr; g.fillRect(0, 0, size, size);
+  return new THREE.CanvasTexture(c);
+}
+
+/* ---- Zal ---- */
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, L), new THREE.MeshStandardMaterial({color:0x241b17, roughness:.34, metalness:.2}));
+floor.rotation.x = -Math.PI/2; floor.position.z = -L/2; scene.add(floor);
+const wallMat = new THREE.MeshStandardMaterial({color:0x2a221e, roughness:.92});
+function wall(w, x, z, ry){ const m = new THREE.Mesh(new THREE.PlaneGeometry(w, H), wallMat); m.position.set(x, H/2, z); m.rotation.y = ry; scene.add(m); }
+wall(L, -W/2, -L/2, Math.PI/2); wall(L, W/2, -L/2, -Math.PI/2); wall(W, 0, -L, 0); wall(W, 0, 0, Math.PI);
+const ceil = new THREE.Mesh(new THREE.PlaneGeometry(W, L), new THREE.MeshStandardMaterial({color:0x0b090a, roughness:1}));
+ceil.rotation.x = Math.PI/2; ceil.position.set(0, H, -L/2); scene.add(ceil);
+const trimMat = new THREE.MeshStandardMaterial({color:0x120e0c, roughness:.6});
+[[-W/2+.03,-L/2,.06,L],[W/2-.03,-L/2,.06,L]].forEach(([x,z,w,d]) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w,.25,d), trimMat); b.position.set(x,.125,z); scene.add(b); });
+
+scene.add(new THREE.HemisphereLight(0xffe2c4, 0x2a1e1c, .22));
+/* ---- Lyustralar ---- */
+const crystalMat = new THREE.MeshPhysicalMaterial({color:0xffffff, metalness:.2, roughness:.02, clearcoat:1, transparent:true, opacity:.75, emissive:0x6a4a2a, emissiveIntensity:.6});
+const bulbMat = new THREE.MeshBasicMaterial({color:0xfff0d0});
+const chandGlow = new THREE.SpriteMaterial({map:radial('rgba(255,215,160,.4)','rgba(255,215,160,0)'), blending:THREE.AdditiveBlending, depthWrite:false, transparent:true});
+const chands = [];
+function chandelier(z){
+  const c = new THREE.Group(); c.position.set(0, H, z); scene.add(c); chands.push(c);
+  const gold = new THREE.MeshStandardMaterial({color:0xc9a15a, roughness:.3, metalness:.85});
+  const chain = new THREE.Mesh(new THREE.CylinderGeometry(.015, .015, .75, 8), gold); chain.position.y = -.37; c.add(chain);
+  const add = (geo, mat, x, y, zz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, zz); c.add(m); return m; };
+  add(new THREE.SphereGeometry(.11, 20, 16), gold, 0, -.8, 0);
+  add(new THREE.SphereGeometry(.07, 16, 12), gold, 0, -1.18, 0);
+  [[.62, -1.02], [.34, -.86]].forEach(([r, y]) => { const t = add(new THREE.TorusGeometry(r, .022, 10, 64), gold, 0, y, 0); t.rotation.x = Math.PI/2; });
+  const drop = new THREE.OctahedronGeometry(.045, 0);
+  for (let k = 0; k < 10; k++){
+    const a = k / 10 * Math.PI * 2, x = Math.cos(a) * .62, zz = Math.sin(a) * .62;
+    add(new THREE.CylinderGeometry(.035, .025, .08, 10), gold, x, -.98, zz);
+    add(new THREE.SphereGeometry(.045, 12, 10), bulbMat, x, -.9, zz);
+    const d1 = add(drop, crystalMat, x, -1.11, zz); d1.scale.y = 1.8;
+    const d2 = add(drop, crystalMat, x, -1.24, zz); d2.scale.set(.7, 1.5, .7);
+    if (k % 2 === 0){ const ix = Math.cos(a + .3) * .34, iz = Math.sin(a + .3) * .34; for (let j = 0; j < 3; j++){ const d = add(drop, crystalMat, ix, -.95 - j * .13, iz); d.scale.y = 1.6; } }
+  }
+  for (let j = 0; j < 4; j++){ const d = add(drop, crystalMat, 0, -1.3 - j * .13, 0); d.scale.y = 1.8; }
+  const gs = new THREE.Sprite(chandGlow); gs.scale.set(2.4, 2.4, 1); gs.position.y = -1; c.add(gs);
+  const l = new THREE.PointLight(0xffd6a8, .55, 12, 2); l.position.y = -1.3; c.add(l);
+}
+[-4, -9.5, -15, -20.5, -26, -31.5].forEach(chandelier);
+
+function coneTex(){
+  const c = document.createElement('canvas'); c.width = 256; c.height = 512; const g = c.getContext('2d');
+  g.translate(128, 150); g.scale(1, 2.6);
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, 125); gr.addColorStop(0, 'rgba(255,214,160,.75)'); gr.addColorStop(.45, 'rgba(255,200,140,.35)'); gr.addColorStop(1, 'rgba(255,200,140,0)');
+  g.fillStyle = gr; g.fillRect(-128, -60, 256, 200); return new THREE.CanvasTexture(c);
+}
+const coneMat = new THREE.MeshBasicMaterial({map:coneTex(), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
+const glowMat = new THREE.MeshBasicMaterial({map:radial('rgba(255,200,140,.5)','rgba(255,200,140,0)'), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
+const floorGlowMat = new THREE.MeshBasicMaterial({map:radial('rgba(255,195,140,.35)','rgba(255,195,140,0)'), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
+const goldMat = new THREE.MeshStandardMaterial({color:0x121012, roughness:.4, metalness:.3});
+const ppMat = new THREE.MeshBasicMaterial({color:0xf1ece4});
+
+/* ---- Rasm uchun vaqtinchalik surat ---- */
+const pal = [['#f6a5b5','#7b3f61'],['#ffcf9f','#8a4b2f'],['#a8d8ff','#36507a'],['#c9b6ff','#4b3a7a'],['#ffd6e0','#a2445d'],['#b6f0d0','#2f6b57'],['#ffe7a8','#8a6a1f'],['#f7b7a3','#6e2f3f']];
+function heartPath(g){ g.beginPath(); g.moveTo(0,9); g.bezierCurveTo(-15,-1,-10,-16,0,-8); g.bezierCurveTo(10,-16,15,-1,0,9); g.fill(); }
+function placeholder(i){
+  const c = document.createElement('canvas'); c.width = 600; c.height = 800;
+  const g = c.getContext('2d'), [a,b] = pal[i % pal.length];
+  const gr = g.createLinearGradient(0,0,600,800); gr.addColorStop(0,a); gr.addColorStop(1,b);
+  g.fillStyle = gr; g.fillRect(0,0,600,800);
+  let s = i*97+13; const rnd = () => (s = (s*16807) % 2147483647) / 2147483647;
+  for (let k = 0; k < 16; k++){ g.fillStyle = `rgba(255,255,255,${.04+rnd()*.1})`; g.beginPath(); g.arc(rnd()*600, rnd()*800, 20+rnd()*90, 0, 7); g.fill(); }
+  g.save(); g.translate(300,350); g.scale(6,6); g.fillStyle = 'rgba(255,255,255,.88)'; heartPath(g); g.restore();
+  g.textAlign = 'center'; g.fillStyle = '#fff';
+  g.font = '600 38px Manrope, sans-serif'; g.fillText('Rasm ' + (i+1), 300, 610);
+  g.font = '24px Manrope, sans-serif'; g.fillStyle = 'rgba(255,255,255,.82)'; g.fillText('bu yerga suratingiz', 300, 655);
+  return c;
+}
+function plaqueTex(text){
+  const c = document.createElement('canvas'); c.width = 512; c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = '#efe6d8'; g.fillRect(0,0,512,128);
+  g.strokeStyle = '#b48a4c'; g.lineWidth = 6; g.strokeRect(3,3,506,122);
+  g.fillStyle = '#3a2a22'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = '56px "Great Vibes", cursive'; g.fillText(text || '', 256, 68, 480);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+}
+
+/* ---- Ramkalar ---- */
+const frames = [];
+function makeFrame(i, x, z, ry, sz = 1, y = 2.55){
+  const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g);
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(4.6*sz, 7*sz), coneMat); glow.position.set(0, .9*sz, .01); g.add(glow);
+  const border = new THREE.Mesh(new THREE.BoxGeometry(1, 1, .12), goldMat); border.position.z = .07; g.add(border);
+  const pp = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), ppMat); pp.position.z = .132; g.add(pp);
+  const photo = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({color:0xffffff})); photo.position.z = .136; g.add(photo);
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(1.3, .325), new THREE.MeshBasicMaterial({color:0xffffff})); g.add(plaque);
+  const nx = Math.sin(ry), nz = Math.cos(ry);
+  const fg = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 3.6), floorGlowMat);
+  fg.rotation.x = -Math.PI/2; fg.position.set(x + nx*1.5, .012, z + nz*1.5); scene.add(fg);
+  const f = {i, sz, g, border, pp, photo, plaque, caption: CONFIG.captions[i] || '', url: null, user: false, stand: new THREE.Vector3(x + nx*2.2, 0, z + nz*2.2)};
+  photo.userData.f = f; frames.push(f);
+  setPlaque(f); setImage(f, placeholder(i));
+}
+function setPlaque(f){ if (f.plaque.material.map) f.plaque.material.map.dispose(); f.plaque.material.map = plaqueTex(f.caption); f.plaque.material.needsUpdate = true; }
+function setImage(f, src, url){
+  const tex = src instanceof HTMLCanvasElement ? new THREE.CanvasTexture(src) : new THREE.Texture(src);
+  tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4; tex.needsUpdate = true;
+  if (f.photo.material.map) f.photo.material.map.dispose();
+  f.photo.material.map = tex; f.photo.material.needsUpdate = true;
+  const w0 = src.naturalWidth || src.width, h0 = src.naturalHeight || src.height, asp = w0 / h0;
+  const h = Math.min(2.1 * f.sz, 3.1 * f.sz / asp), w = h * asp;
+  const pd = .3 * f.sz; f.photo.scale.set(w, h, 1); f.pp.scale.set(w + pd, h + pd, 1); f.border.scale.set(w + pd + .12, h + pd + .12, 1);
+  f.plaque.position.set(0, -h/2 - .62, .02);
+  f.url = url || src.toDataURL('image/jpeg', .9);
+}
+
+/* ---- Pingvin ---- */
+const P = new THREE.Group(); scene.add(P);
+const pBody = new THREE.Group(); P.add(pBody);
+const black = new THREE.MeshPhysicalMaterial({color:0x252a40, roughness:.42, clearcoat:.7, clearcoatRoughness:.25});
+const white = new THREE.MeshPhysicalMaterial({color:0xfbf8f2, roughness:.55, clearcoat:.3});
+const orange = new THREE.MeshPhysicalMaterial({color:0xffa12e, roughness:.35, clearcoat:.6});
+const eyeMat = new THREE.MeshPhysicalMaterial({color:0x0b0b12, roughness:.1, clearcoat:1});
+const shine = new THREE.MeshBasicMaterial({color:0xffffff});
+const blush = new THREE.MeshStandardMaterial({color:0xff9db4, roughness:.9, transparent:true, opacity:.85});
+const scarfMat = new THREE.MeshPhysicalMaterial({color:0xe23f5f, roughness:.75});
+function sph(r, mat, sx, sy, sz, x, y, z, parent){ const m = new THREE.Mesh(new THREE.SphereGeometry(r, 32, 24), mat); m.scale.set(sx, sy, sz); m.position.set(x, y, z); (parent || pBody).add(m); return m; }
+/* bitta yumshoq tana: bosh va gavda birga */
+const prof = [[0,0],[.3,.02],[.45,.12],[.53,.34],[.55,.6],[.51,.86],[.45,1.04],[.43,1.18],[.45,1.36],[.42,1.55],[.33,1.7],[.18,1.79],[0,1.81]].map(([x,y]) => new THREE.Vector2(x,y));
+pBody.add(new THREE.Mesh(new THREE.LatheGeometry(new THREE.SplineCurve(prof).getPoints(60), 64), black));
+sph(.45, white, .86, 1.08, .62, 0, .6, .3);                       // qorin
+const head = new THREE.Group(); head.position.y = 1.36; pBody.add(head);
+sph(.21, white, 1, 1, .75, -.1, .08, .3, head);                    // yurakcha shaklidagi yuz
+sph(.21, white, 1, 1, .75, .1, .08, .3, head);
+sph(.24, white, 1.05, .82, .75, 0, -.1, .27, head);
+[-1, 1].forEach(s => {
+  sph(.075, eyeMat, 1, 1.25, .5, s*.12, .03, .44, head);
+  sph(.026, shine, 1, 1, .5, s*.12 + .025, .07, .475, head);
+  sph(.012, shine, 1, 1, .5, s*.12 - .02, -.02, .475, head);
+  sph(.055, blush, 1.2, .8, .35, s*.24, -.11, .41, head);
+});
+sph(.07, orange, 1.25, .7, 1.2, 0, -.1, .48, head);                // tumshuq
+[-.06, 0, .06].forEach((x, k) => { const c = new THREE.Mesh(new THREE.ConeGeometry(.035, .18, 12), black); c.position.set(x, .5, .02); c.rotation.z = -x*4; c.rotation.x = -.2; head.add(c); });
+const scarf = new THREE.Mesh(new THREE.TorusGeometry(.485, .07, 16, 48), scarfMat); scarf.rotation.x = Math.PI/2; scarf.position.y = .96; pBody.add(scarf);
+const tail = new THREE.Mesh(new THREE.BoxGeometry(.15, .38, .06), scarfMat); tail.position.set(.22, .78, .47); tail.rotation.z = .25; pBody.add(tail);
+const flips = [-1, 1].map(s => { const g = new THREE.Group(); g.position.set(s*.5, 1.0, 0); pBody.add(g); sph(.17, black, .3, 1.1, .62, 0, -.26, 0, g); g.userData.s = s; return g; });
+const feet = [-1, 1].map(s => { const g = new THREE.Group(); g.position.set(s*.19, .04, .12); P.add(g); sph(.12, orange, 1, .38, 1.3, 0, 0, 0, g); [-1,0,1].forEach(k => sph(.05, orange, 1, .6, 1, k*.07, 0, .14, g)); return g; });
+const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.4), new THREE.MeshBasicMaterial({map:radial('rgba(0,0,0,.65)','rgba(0,0,0,0)'), transparent:true, depthWrite:false}));
+shadow.rotation.x = -Math.PI/2; shadow.position.y = .015; P.add(shadow);
+const pLight = new THREE.PointLight(0xffe0c0, .55, 6, 2); scene.add(pLight);
+P.position.set(0, 0, -6.5); P.rotation.y = Math.PI;
+
+/* ---- Yurak zarralari ---- */
+const hc = document.createElement('canvas'); hc.width = hc.height = 64;
+{ const g = hc.getContext('2d'); g.translate(32, 32); g.scale(2.2, 2.2); g.fillStyle = '#fff'; heartPath(g); }
+const HN = 70, hp = new Float32Array(HN*3);
+for (let k = 0; k < HN; k++){ hp[k*3] = (Math.random()-.5)*(W-2); hp[k*3+1] = Math.random()*H; hp[k*3+2] = -Math.random()*L; }
+const hGeo = new THREE.BufferGeometry(); hGeo.setAttribute('position', new THREE.BufferAttribute(hp, 3));
+const hearts = new THREE.Points(hGeo, new THREE.PointsMaterial({map:new THREE.CanvasTexture(hc), color:0xff8fa8, size:.22, transparent:true, opacity:.55, blending:THREE.AdditiveBlending, depthWrite:false}));
+scene.add(hearts);
+
+/* ---- Oxirgi devordagi yozuv ---- */
+let titleMesh;
+function buildTitle(){
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 256;
+  const g = c.getContext('2d'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#efe6da';
+  g.font = 'italic 500 104px "Playfair Display", Georgia, serif'; g.fillText('Bizning muzeyimiz', 512, 110, 1000);
+  g.font = '600 26px Manrope, sans-serif'; g.fillStyle = 'rgba(239,230,218,.6)';
+  const sub = [...'MUZEYCHA'].join(String.fromCharCode(8202, 8202, 8202)); g.fillText(sub, 512, 200);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4;
+  titleMesh = new THREE.Mesh(new THREE.PlaneGeometry(6, 1.5), new THREE.MeshBasicMaterial({map:t, transparent:true}));
+  titleMesh.position.set(0, 4.95, -L + .04); scene.add(titleMesh);
+}
+
+/* ---- Boshqaruv ---- */
+let jx = 0, jy = 0, jid = null; const keys = {};
+const joy = $('#joy'), knob = $('#knob');
+function joyMove(e){
+  const r = joy.getBoundingClientRect(); let dx = e.clientX - (r.left + r.width/2), dy = e.clientY - (r.top + r.height/2);
+  const m = r.width * .32, d = Math.hypot(dx, dy); if (d > m){ dx *= m/d; dy *= m/d; }
+  jx = dx/m; jy = dy/m; knob.style.transform = `translate(${dx}px,${dy}px)`;
+}
+function joyEnd(){ jid = null; jx = jy = 0; knob.style.transform = ''; }
+joy.addEventListener('pointerdown', e => { jid = e.pointerId; joy.setPointerCapture(jid); joyMove(e); });
+joy.addEventListener('pointermove', e => { if (e.pointerId === jid) joyMove(e); });
+joy.addEventListener('pointerup', joyEnd); joy.addEventListener('pointercancel', joyEnd);
+addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key === 'Escape') closeLb(); });
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+let camYaw = 0, drag = null;
+canvas.addEventListener('pointerdown', e => { drag = {id:e.pointerId, x:e.clientX, y:e.clientY, lx:e.clientX, t:performance.now(), moved:0}; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => { if (!drag || drag.id !== e.pointerId) return; const dx = e.clientX - drag.lx; drag.lx = e.clientX; drag.moved += Math.abs(dx); camYaw -= dx * .006; });
+canvas.addEventListener('pointerup', e => {
+  if (!drag) return;
+  if (drag.moved < 8 && performance.now() - drag.t < 450) tap(e.clientX, e.clientY);
+  drag = null;
+});
+const ray = new THREE.Raycaster(), v2 = new THREE.Vector2();
+let jumpT = 0;
+function tap(x, y){
+  v2.set(x/innerWidth*2 - 1, -(y/innerHeight)*2 + 1); ray.setFromCamera(v2, camera);
+  const hit = ray.intersectObjects([...frames.map(f => f.photo), P], true)[0];
+  if (!hit) return;
+  if (hit.object.userData.f) openLb(hit.object.userData.f.i); else if (jumpT <= 0) jumpT = 1;
+}
+
+/* ---- Rasm ko'rish oynasi ---- */
+const lb = $('#lb'), cap = $('#cap'); let cur = 0;
+function openLb(i){ cur = (i + N) % N; const f = frames[cur]; $('#lbImg').src = f.url; cap.value = f.caption; lb.classList.add('on'); }
+function closeLb(){ lb.classList.remove('on'); }
+$('#close').onclick = closeLb; $('#prev').onclick = () => openLb(cur - 1); $('#next').onclick = () => openLb(cur + 1);
+lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+cap.addEventListener('input', () => { frames[cur].caption = cap.value; setPlaque(frames[cur]); });
+let nearF = null; $('#near').onclick = () => nearF && openLb(nearF.i);
+
+/* ---- Rasm yuklash ---- */
+function loadInto(f, src, done){
+  const img = new Image();
+  img.onload = () => { setImage(f, img, src); f.user = true; done && done(); };
+  img.src = src;
+}
+$('#file').addEventListener('change', e => {
+  const files = [...e.target.files].filter(x => x.type.startsWith('image/'));
+  files.forEach(file => {
+    const f = frames.find(x => !x.user) || frames[frames.filter(x => x.user).length % N];
+    f.user = true; loadInto(f, URL.createObjectURL(file));
+  });
+  e.target.value = '';
+  $('#help').textContent = files.length + ' ta rasm devorga osildi'; $('#help').classList.remove('off');
+});
+
+/* ---- Asosiy sikl ---- */
+function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w/h; camera.fov = w < h ? 70 : 60; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+const clock = new THREE.Clock(), camPos = new THREE.Vector3(0, 2.4, 1.5), look = new THREE.Vector3();
+let phase = 0, moveAmt = 0, fly = -1;
+const flyPos = new THREE.Vector3(0, 3.4, -.5), flyLookStart = new THREE.Vector3(0, 2.8, -32), flyLook = new THREE.Vector3();
+function loop(){
+  const dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime;
+  let ix = jx + ((keys.d || keys.arrowright) ? 1 : 0) - ((keys.a || keys.arrowleft) ? 1 : 0);
+  let iy = jy + ((keys.s || keys.arrowdown) ? 1 : 0) - ((keys.w || keys.arrowup) ? 1 : 0);
+  const mag = Math.min(1, Math.hypot(ix, iy));
+  if (mag > .08){
+    const cy = Math.cos(camYaw), sy = Math.sin(camYaw);
+    const mx = ix*cy + iy*sy, mz = -ix*sy + iy*cy, len = Math.hypot(mx, mz);
+    const sp = 3.6 * mag * dt;
+    P.position.x = THREE.MathUtils.clamp(P.position.x + mx/len*sp, -W/2 + .8, W/2 - .8);
+    P.position.z = THREE.MathUtils.clamp(P.position.z + mz/len*sp, -L + .8, -.8);
+    const target = Math.atan2(mx, mz); let d = target - P.rotation.y;
+    d = Math.atan2(Math.sin(d), Math.cos(d)); P.rotation.y += d * Math.min(1, dt*10);
+    camYaw += Math.atan2(Math.sin(P.rotation.y + Math.PI - camYaw), Math.cos(P.rotation.y + Math.PI - camYaw)) * dt * .8 * mag;
+  }
+  moveAmt += ((mag > .08 ? 1 : 0) - moveAmt) * Math.min(1, dt*8);
+  phase += dt * 11 * moveAmt;
+  pBody.rotation.z = Math.sin(phase) * .13 * moveAmt;
+  feet[0].position.z = .12 + Math.sin(phase) * .14 * moveAmt; feet[1].position.z = .12 - Math.sin(phase) * .14 * moveAmt;
+  flips.forEach(g => g.rotation.z = g.userData.s * (.22 + Math.abs(Math.sin(phase)) * .35 * moveAmt + (jumpT > 0 ? .9 : 0)));
+  pBody.scale.set(1, 1 + Math.sin(t*2.2) * .012 * (1 - moveAmt), 1); tail.rotation.z = .25 + Math.sin(phase) * .2 * moveAmt; chands.forEach((c, k) => c.rotation.z = Math.sin(t*.6 + k) * .025);
+  if (jumpT > 0){ jumpT -= dt*1.6; pBody.position.y = Math.sin((1 - Math.max(jumpT,0)) * Math.PI) * .5; } else pBody.position.y = 0;
+  shadow.scale.setScalar(1 - pBody.position.y * .6);
+  pLight.position.set(P.position.x, 3, P.position.z);
+
+  const dist = 5.6, cx = THREE.MathUtils.clamp(P.position.x + Math.sin(camYaw)*dist, -W/2 + .4, W/2 - .4), cz = THREE.MathUtils.clamp(P.position.z + Math.cos(camYaw)*dist, -L + .4, -.4);
+  camPos.lerp(new THREE.Vector3(cx, 3.3, cz), Math.min(1, dt*6));
+  look.set(P.position.x, 1.6, P.position.z);
+  if (fly < 1){
+    const e = fly < 0 ? 0 : fly*fly*(3 - 2*fly);
+    camera.position.copy(flyPos).lerp(camPos, e); flyLook.copy(flyLookStart).lerp(look, e); camera.lookAt(flyLook);
+    if (fly >= 0){ fly = Math.min(1, fly + dt/3.4); if (fly === 1) jumpT = 1; }
+  } else { camera.position.copy(camPos); camera.lookAt(look); }
+
+  const pa = hGeo.attributes.position.array;
+  for (let k = 0; k < HN; k++){ pa[k*3+1] += dt * (.12 + (k % 5)*.03); pa[k*3] += Math.sin(t + k) * dt * .05; if (pa[k*3+1] > H) pa[k*3+1] = 0; }
+  hGeo.attributes.position.needsUpdate = true;
+
+  let best = null, bd = 4;
+  for (const f of frames){ const d = Math.hypot(f.stand.x - P.position.x, f.stand.z - P.position.z); if (d < bd){ bd = d; best = f; } }
+  if (best !== nearF){ nearF = best; if (best) $('#help').classList.add('off'); $('#near').classList.toggle('on', !!best); if (best) $('#nearTxt').textContent = best.caption || ('Rasm ' + (best.i+1)); }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+
+function build(){
+  makeFrame(0, 0, -L + .02, 0, 1.4, 2.5);   // birinchi rasm — oxirgi devorda, katta
+  for (let i = 1; i < N; i++){
+    if (i % 2) makeFrame(i, -W/2 + .02, -8 - (i - 1) / 2 * 8, Math.PI/2);
+    else makeFrame(i, W/2 - .02, -12 - (i - 2) / 2 * 8, -Math.PI/2);
+  }
+  frames.sort((a, b) => a.i - b.i);
+  CONFIG.photos.slice(0, N).forEach((src, i) => loadInto(frames[i], src));
+  buildTitle();
+  loop();
+  setTimeout(() => { $('#loader').classList.add('off'); fly = 0; }, 900);
+  setTimeout(() => $('#help').classList.add('off'), 11000);
+}
+Promise.race([
+  Promise.all([document.fonts.load('60px "Great Vibes"'), document.fonts.load('600 30px Manrope'), document.fonts.load('italic 500 60px "Playfair Display"')]),
+  new Promise(r => setTimeout(r, 2000))
+]).then(build, build);
+
+$('#home').onclick = () => { P.position.set(0, 0, -6.5); P.rotation.y = Math.PI; camYaw = 0; };
+}
+</script>
+</body>
+</html>
